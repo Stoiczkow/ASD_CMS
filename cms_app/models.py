@@ -13,6 +13,8 @@ class Machine(models.Model):
         verbose_name = 'Maszyna'
         verbose_name_plural = "Maszyny"
 
+    def __str__(self):
+        return self.name
 
 class Order(models.Model):
     order_id = models.IntegerField(unique=True, verbose_name="Numer zlecenia")

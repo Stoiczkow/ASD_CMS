@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.views import View
+from django.views.generic.edit import CreateView
 from .models import Order, Machine
 # Create your views here.
 
@@ -24,3 +25,10 @@ class OrdersToTakeView(View):
                'orders': orders}
 
         return render(request, 'orders_tt.html', ctx)
+
+
+class CreateOrderView(CreateView):
+    model = Order
+    fields = ('order_id', 'machine', 'planned')
+    template_name = 'order_form.html'
+    success_url = '/'

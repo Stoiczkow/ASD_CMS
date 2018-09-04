@@ -30,6 +30,9 @@
         <li class="nav-item active">
             <a class="nav-link" href="{% url 'orders_tt' %}">Zlecenia dostępne</a>
         </li>
+        <li class="nav-item active">
+            <a class="nav-link" href="{% url 'add_order' %}">Dodaj zlecenie</a>
+        </li>
     </ul>
 
     <ul class="navbar-nav ml-auto">
@@ -52,9 +55,14 @@
     {% endif %}
 </nav>
 {% block content %}
-    {% for order in orders %}
-        {{ order }}
-    {% endfor %}
+<div class="container">
+  <h2 class="text-center">Twoje zlecenia</h2>
+  <ul class="list-group">
+      {% for order in orders %}
+      <li class="list-group-item list-group-item-dark">Zlecenie nr {{ order.order_id }}, na maszynie {{ order.machine.name }}</li>
+      {% endfor %}
+  </ul>
+</div>
 {% endblock %}
 </body>
 </html>
