@@ -6,25 +6,37 @@ CAUSES = (
 )
 
 class Machine(models.Model):
-    name = models.CharField(max_length=512)
-    setting = models.IntegerField()
+    name = models.CharField(max_length=512, verbose_name='Nazwa maszyny')
+    setting = models.IntegerField(verbose_name='Nastawa maszyny')
+
+    class Meta:
+        verbose_name = 'Maszyna'
+        verbose_name_plural = "Maszyny"
 
 
 class Order(models.Model):
-    order_id = models.IntegerField(unique=True)
-    start_date = models.DateTimeField(null=True, blank=True)
-    stop_date = models.DateTimeField(null=True, blank=True)
-    realization = models.FloatField(null=True, blank=True)
-    planned = models.FloatField()
-    is_taken = models.BooleanField(default=False)
-    is_finished = models.BooleanField(default=False)
-    waste = models.FloatField(null=True, blank=True)
-    machine = models.ForeignKey(Machine, on_delete=True)
-    user = models.ForeignKey(User, on_delete=True, null=True,  blank=True)
+    order_id = models.IntegerField(unique=True, verbose_name="Numer zlecenia")
+    start_date = models.DateTimeField(null=True, blank=True, verbose_name="Start zlecenia")
+    stop_date = models.DateTimeField(null=True, blank=True, verbose_name="Koniec zlecenia")
+    realization = models.FloatField(null=True, blank=True, verbose_name="Wykonano")
+    planned = models.FloatField(verbose_name="Planowane wykonanie")
+    is_taken = models.BooleanField(default=False, verbose_name="Zlecenie zajęte")
+    is_finished = models.BooleanField(default=False, verbose_name="Zlecenie zakończone")
+    waste = models.FloatField(null=True, blank=True, verbose_name="Ilość odpadów")
+    machine = models.ForeignKey(Machine, on_delete=True, verbose_name="Maszyna")
+    user = models.ForeignKey(User, on_delete=True, null=True, blank=True, verbose_name="Osoba odpowiedzialna")
+
+    class Meta:
+        verbose_name = 'Zlecenie'
+        verbose_name_plural = "Zlecenia"
 
 
 class Interruption(models.Model):
-    start_date = models.DateTimeField()
-    stop_date = models.DateTimeField()
-    cause = models.IntegerField(choices=CAUSES)
-    order = models.ForeignKey(Order, on_delete=True)
+    start_date = models.DateTimeField(verbose_name="Początek przestoju")
+    stop_date = models.DateTimeField(verbose_name="Koniec przestoju")
+    cause = models.IntegerField(choices=CAUSES, verbose_name="Przyczyna przestoju")
+    order = models.ForeignKey(Order, on_delete=True, verbose_name="Zlecenie")
+
+    class Meta:
+        verbose_name = 'Przestój'
+        verbose_name_plural = "Przestoje"
