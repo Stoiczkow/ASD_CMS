@@ -22,17 +22,38 @@
 <body>
 
 <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+    {% if user.is_authenticated %}
     <ul class="navbar-nav">
         <li class="nav-item active">
-      <a class="nav-link" href="#">Active</a>
-    </li>
+            <a class="nav-link" href="{% url 'index' %}">Zlecenia w trakcie</a>
+        </li>
+        <li class="nav-item active">
+            <a class="nav-link" href="{% url 'orders_tt' %}">Zlecenia dostępne</a>
+        </li>
     </ul>
-    <ul class="navbar-nav ml-auto">
 
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                Zalogowano jako {{ user.first_name }} {{ user.last_name }}
+            </a>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+            </div>
+        </li>
     </ul>
+    {% else %}
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item active">
+            <a class="nav-link" href="{% url 'login' %}">Zaloguj się</a>
+        </li>
+    </ul>
+    {% endif %}
 </nav>
 {% block content %}
-
+    {% for order in orders %}
+        {{ order }}
+    {% endfor %}
 {% endblock %}
 </body>
 </html>

@@ -15,9 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from cms_app.views import MainPageView
+from cms_app.views import (MainPageView, OrdersToTakeView)
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('login/', auth_views.login, name='login'),
+    path('logout/', auth_views.logout, {'next_page': '/login/'}, name='logout'),
     path('', MainPageView.as_view(), name='index'),
+    path('take_order', OrdersToTakeView.as_view(), name='orders_tt'),
 ]
