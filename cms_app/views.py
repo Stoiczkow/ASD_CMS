@@ -5,6 +5,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views import View
 from django.views.generic.edit import CreateView
 from .models import Order, Machine
+import datetime
+from django.db import transaction
 # Create your views here.
 
 class MainPageView(View):
@@ -22,21 +24,26 @@ class MainPageView(View):
 
 class OrdersToTakeView(View):
     def get(self, request):
-        machines = Machine.objects.all()
+        machines = Machine.objects.filter(is_taken=False)
 
-        ctx = {'machines': machines,}
+        ctx = {'machines': machines}
 
         return render(request, 'orders_tt.html', ctx)
 
     def post(self, request):
         try:
-            order = Order.objects.get(pk=int(request.POST['order']), is_taken=False)
-            order.is_taken = True
-            order.user = request.user
-            order.save()
-            return HttpResponseRedirect(reverse('index'))
+            with transaction.atomic():
+                order = Order.objects.get(pk=int(request.POST['order']), is_taken=False)
+                machine = order.machine
+                machine.is_taken = True
+                machine.save()
+                order.is_taken = True
+                order.user = request.user
+                order.start_date = datetime.datetime.now()
+                order.save()
+                return HttpResponseRedirect(reverse('index'))
         except ObjectDoesNotExist:
-            machines = Machine.objects.all()
+            machines = Machine.filter(is_taken=False)
             ctx = {'machines': machines, 'error': 'Zlecenie zostało już zajęte.'}
             return render(request, 'orders_tt.html', ctx)
 

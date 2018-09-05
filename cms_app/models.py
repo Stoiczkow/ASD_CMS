@@ -5,9 +5,11 @@ CAUSES = (
     (1, "Cause"),
 )
 
+
 class Machine(models.Model):
     name = models.CharField(max_length=512, verbose_name='Nazwa maszyny')
     setting = models.IntegerField(verbose_name='Nastawa maszyny')
+    is_taken = models.BooleanField(default=False, verbose_name="Czy maszyna jest w tej chwili zajęta?")
 
     class Meta:
         verbose_name = 'Maszyna'

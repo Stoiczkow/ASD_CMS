@@ -58,9 +58,13 @@
 <div class="container">
   <h4 class="text-center">Twoje zlecenia</h4>
   <ul class="list-group list-group-flush">
+      {% if orders %}
       {% for order in orders %}
       <li class="list-group-item">Zlecenie nr {{ order.order_id }}, na maszynie {{ order.machine.name }}</li>
       {% endfor %}
+      {% else %}
+            <li class="list-group-item">Brak aktywnych zleceń</li>
+      {% endif %}
   </ul>
 </div>
 {% endblock %}
