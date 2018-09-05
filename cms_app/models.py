@@ -37,6 +37,9 @@ class Order(models.Model):
         verbose_name = 'Zlecenie'
         verbose_name_plural = "Zlecenia"
 
+    def __str__(self):
+        return "Zlecenie nr {}".format(self.order_id)
+
 
 class Interruption(models.Model):
     start_date = models.DateTimeField(verbose_name="Początek przestoju")

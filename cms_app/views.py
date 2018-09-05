@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.core.exceptions import ObjectDoesNotExist
 from django.views import View
 from django.views.generic.edit import CreateView
 from .models import Order, Machine
@@ -13,6 +14,7 @@ class MainPageView(View):
                                           is_taken=True,
                                           is_finished=False)
             ctx = {'orders': orders}
+
             return render(request, 'index.html', ctx)
         else:
             return render(request, 'index.html', {})
@@ -21,19 +23,23 @@ class MainPageView(View):
 class OrdersToTakeView(View):
     def get(self, request):
         machines = Machine.objects.all()
-        orders = Order.objects.all()
 
-        ctx = {'machines': machines,
-               'orders': orders}
+        ctx = {'machines': machines,}
 
         return render(request, 'orders_tt.html', ctx)
 
     def post(self, request):
-        order = Order.objects.get(pk=int(request.POST['order']))
-        order.is_taken = True
-        order.user = request.user
-        order.save()
-        return HttpResponseRedirect(reverse('index'))
+        try:
+            order = Order.objects.get(pk=int(request.POST['order']), is_taken=False)
+            order.is_taken = True
+            order.user = request.user
+            order.save()
+            return HttpResponseRedirect(reverse('index'))
+        except ObjectDoesNotExist:
+            machines = Machine.objects.all()
+            ctx = {'machines': machines, 'error': 'Zlecenie zostało już zajęte.'}
+            return render(request, 'orders_tt.html', ctx)
+
 
 
 class CreateOrderView(CreateView):
