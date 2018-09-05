@@ -56,7 +56,7 @@
 </nav>
 {% block content %}
 <div class="container">
-  <h2 class="text-center">Twoje zlecenia</h2>
+  <h4 class="text-center">Twoje zlecenia</h4>
   <ul class="list-group">
       {% for order in orders %}
       <li class="list-group-item list-group-item-dark">Zlecenie nr {{ order.order_id }}, na maszynie {{ order.machine.name }}</li>

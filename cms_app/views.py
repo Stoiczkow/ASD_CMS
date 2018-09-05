@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.views import View
 from django.views.generic.edit import CreateView
 from .models import Order, Machine
@@ -25,6 +27,13 @@ class OrdersToTakeView(View):
                'orders': orders}
 
         return render(request, 'orders_tt.html', ctx)
+
+    def post(self, request):
+        order = Order.objects.get(pk=int(request.POST['order']))
+        order.is_taken = True
+        order.user = request.user
+        order.save()
+        return HttpResponseRedirect(reverse('index'))
 
 
 class CreateOrderView(CreateView):

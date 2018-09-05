@@ -16,6 +16,11 @@ class Machine(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def orders(self):
+        return Order.objects.filter(machine=self, is_taken=False)
+
+
 class Order(models.Model):
     order_id = models.IntegerField(unique=True, verbose_name="Numer zlecenia")
     start_date = models.DateTimeField(null=True, blank=True, verbose_name="Start zlecenia")

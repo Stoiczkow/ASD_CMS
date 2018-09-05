@@ -2,5 +2,26 @@
 {% load widget_tweaks %}
 
 {% block content %}
-{{ orders }}
+<div class="container">
+    <h4 class="text-center">Dostępne zlecenia</h4>
+</div>
+    {% for machine in machines %}
+<div class="container">
+     <ul class="list-group">
+        <li class="list-group-item list-group-item-dark">{{ machine.name }}</li>
+     </ul>
+     <div class="container">
+         <ul class="list-group list-group-flush">
+             {% if machine.orders %}
+             {% for order in machine.orders %}
+             <li class="list-group-item">Zlecenie nr {{ order.order_id }} <form  style="display:inline" method="post">{% csrf_token %}<input style="display:none" type="number" name="order" value="{{ order.pk }}"><button type="submit" class="btn btn-dark">Zajmij zlecenie</button></form> </li>
+             {% endfor %}
+             {% else %}
+             <li class="list-group-item">Brak zleceń</li>
+             {% endif %}
+
+         </ul>
+     </div>
+</div>
+    {% endfor %}
 {% endblock %}
