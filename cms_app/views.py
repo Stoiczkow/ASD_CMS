@@ -5,9 +5,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views import View
 from django.views.generic.edit import CreateView
 from .models import Order, Machine
+from .forms import OrderForm
 import datetime
 from django.db import transaction
 # Create your views here.
+
 
 class MainPageView(View):
     def get(self, request):
@@ -48,9 +50,18 @@ class OrdersToTakeView(View):
             return render(request, 'orders_tt.html', ctx)
 
 
-
 class CreateOrderView(CreateView):
     model = Order
     fields = ('order_id', 'machine', 'planned')
     template_name = 'order_form.html'
     success_url = '/'
+
+
+class CloseOrderView(View):
+    def get(self, request, pk):
+        form = OrderForm()
+        ctx = {'form': form}
+        return render(request, 'close_order.html', ctx)
+
+    def post(self, request, pk):
+        pass

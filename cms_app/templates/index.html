@@ -60,7 +60,7 @@
   <ul class="list-group list-group-flush">
       {% if orders %}
       {% for order in orders %}
-      <li class="list-group-item">Zlecenie nr {{ order.order_id }}, na maszynie {{ order.machine.name }}</li>
+      <li class="list-group-item">Zlecenie nr {{ order.order_id }}, na maszynie {{ order.machine.name }} <a href="{% url 'close' pk=order.pk %}"><button type="button" class="btn btn-dark">Zamknij zlecenie</button></a></li>
       {% endfor %}
       {% else %}
             <li class="list-group-item">Brak aktywnych zleceń</li>
