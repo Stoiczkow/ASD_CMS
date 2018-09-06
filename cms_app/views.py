@@ -8,7 +8,17 @@ from .models import Order, Machine
 from .forms import OrderForm
 import datetime
 from django.db import transaction
+from django.shortcuts import render_to_response
+from django.template import RequestContext
 # Create your views here.
+
+
+def handler404(request):
+    return render(request, '404.html', {})
+
+
+def handler500(request):
+    return render(request, '500.html', {})
 
 
 class MainPageView(View):
@@ -44,6 +54,7 @@ class OrdersToTakeView(View):
                 order.start_date = datetime.datetime.now()
                 order.save()
                 return HttpResponseRedirect(reverse('index'))
+
         except ObjectDoesNotExist:
             machines = Machine.filter(is_taken=False)
             ctx = {'machines': machines, 'error': 'Zlecenie zostało już zajęte.'}
@@ -64,4 +75,14 @@ class CloseOrderView(View):
         return render(request, 'close_order.html', ctx)
 
     def post(self, request, pk):
-        pass
+        order = Order.objects.get(pk=pk)
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            order.realization = float(request.POST['realization'])
+            order.waste = float(request.POST['waste'])
+            order.is_finished = True
+            order.machine.is_taken = False
+            order.machine.save()
+            order.save()
+
+            return HttpResponseRedirect(reverse('index'))

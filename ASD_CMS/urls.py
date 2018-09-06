@@ -27,3 +27,6 @@ urlpatterns = [
     path('take_order', OrdersToTakeView.as_view(), name='orders_tt'),
     path('close_order/<int:pk>', CloseOrderView.as_view(), name='close'),
 ]
+
+handler404 = 'cms_app.views.handler404'
+handler500 = 'cms_app.views.handler500'
