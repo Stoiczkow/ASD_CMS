@@ -8,8 +8,6 @@ from .models import Order, Machine
 from .forms import OrderForm
 import datetime
 from django.db import transaction
-from django.shortcuts import render_to_response
-from django.template import RequestContext
 # Create your views here.
 
 
