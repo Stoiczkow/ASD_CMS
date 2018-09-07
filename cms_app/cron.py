@@ -19,23 +19,26 @@ def process_black_box():
         interruptions = {}
         all_lines = file.readlines()
         current_interruption = ''
-        for j in range(1, len(all_lines)):
-            line = all_lines[j]
-            line_without_date = line[20:]
-            found = re.findall(r'([0-9]+)', line_without_date)
+        machine_columns = [0, 1]
+        for col in machine_columns:
+            key_m = 'machine {}'.format(col)
+            interruptions[key_m] = {}
+            for j in range(1, len(all_lines)):
+                line = all_lines[j]
+                line_without_date = line[20:]
+                found = re.findall(r'([0-9]+)', line_without_date)
 
-            machine_columns = [0, 1]
-            if not int(found[0]):
-                if not current_interruption:
-                    current_interruption = str(line[0:19])
-                try:
-                    interruptions[current_interruption][0] += 1
-                except KeyError:
-                    interruptions[current_interruption] = [1]
-            else:
-                try:
-                    interruptions[current_interruption].append(str(line[0:19]))
-                except KeyError:
-                    pass
+                if not int(found[0]):
+                    if not current_interruption:
+                        current_interruption = str(line[0:19])
+                    try:
+                        interruptions[key_m][current_interruption][0] += 1
+                    except KeyError:
+                        interruptions[key_m][current_interruption] = [1]
+                else:
+                    try:
+                        interruptions[key_m][current_interruption].append(str(line[0:19]))
+                    except KeyError:
+                        pass
                     current_interruption = ''
-    print('went good')
+        print(interruptions)
