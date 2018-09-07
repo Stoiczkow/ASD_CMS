@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'cms_app',
-    'widget_tweaks'
+    'widget_tweaks',
+    'kronos'
 ]
 
 MIDDLEWARE = [
