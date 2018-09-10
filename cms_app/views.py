@@ -84,7 +84,22 @@ class CloseRealizationView(View):
             return HttpResponseRedirect(reverse('index'))
 
 
-class CloseOrderView(View):
-    def get(self, reqiest):
-        pass
-    
+class CloseOrderListView(View):
+    def get(self, request):
+        orders = Order.objects.filter(is_finished=False)
+        ctx = {'orders': orders}
+        return render(request, 'orders_to_close.html', ctx)
+
+
+class CloseOrderDetailsView(View):
+    def get(self, request, pk):
+        order = Order.objects.get(pk=pk)
+        ctx = {'order': order}
+        return render(request, 'order_to_close.html', ctx)
+
+    def post(self, request, pk):
+        order = Order.objects.get(pk=int(request.POST['order']))
+        order.is_finished = True
+        order.save()
+
+        return HttpResponseRedirect(reverse('close_order'))

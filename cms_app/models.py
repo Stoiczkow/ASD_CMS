@@ -20,7 +20,7 @@ class Machine(models.Model):
 
     @property
     def orders(self):
-        return Order.objects.filter(machine=self)
+        return Order.objects.filter(machine=self, is_finished=False)
 
 
 class Order(models.Model):
