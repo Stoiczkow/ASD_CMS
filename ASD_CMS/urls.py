@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from cms_app.views import (MainPageView, OrdersToTakeView, CreateOrderView, CloseOrderView)
+from cms_app.views import (MainPageView, OrdersToTakeView, CreateOrderView, CloseRealizationView)
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
@@ -25,7 +25,7 @@ urlpatterns = [
     path('', MainPageView.as_view(), name='index'),
     path('add_order', CreateOrderView.as_view(), name='add_order'),
     path('take_order', OrdersToTakeView.as_view(), name='orders_tt'),
-    path('close_order/<int:pk>', CloseOrderView.as_view(), name='close'),
+    path('close_order/<int:pk>', CloseRealizationView.as_view(), name='close'),
 ]
 
 handler404 = 'cms_app.views.handler404'

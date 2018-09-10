@@ -56,14 +56,14 @@
 </nav>
 {% block content %}
 <div class="container">
-  <h4 class="text-center">Twoje zlecenia</h4>
+  <h4 class="text-center">Twoje realizacje</h4>
   <ul class="list-group list-group-flush">
-      {% if orders %}
-      {% for order in orders %}
-      <li class="list-group-item">Zlecenie nr {{ order.order_id }}, na maszynie {{ order.machine.name }} <a href="{% url 'close' pk=order.pk %}"><button type="button" class="btn btn-dark">Zamknij zlecenie</button></a></li>
+      {% if realizations %}
+      {% for realization in realizations %}
+      <li class="list-group-item">Zlecenie nr {{ realization.order.order_id }}, na maszynie {{ realization.order.machine }} <a href="{% url 'close' pk=realization.pk %}"><button type="button" class="btn btn-dark">Zamknij realizację</button></a></li>
       {% endfor %}
       {% else %}
-            <li class="list-group-item">Brak aktywnych zleceń</li>
+            <li class="list-group-item">Brak aktywnych realizacji</li>
       {% endif %}
   </ul>
 </div>

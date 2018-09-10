@@ -13,10 +13,11 @@
 </div>
     {% for machine in machines %}
 <div class="container">
-    {% if machine.orders %}
-     <ul class="list-group">
+    <ul class="list-group">
         <li class="list-group-item list-group-item-dark">{{ machine.name }}</li>
      </ul>
+    {% if machine.orders %}
+
      <div class="container">
          <ul class="list-group list-group-flush">
 

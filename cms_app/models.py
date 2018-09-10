@@ -20,20 +20,16 @@ class Machine(models.Model):
 
     @property
     def orders(self):
-        return Order.objects.filter(machine=self, is_taken=False)
+        return Order.objects.filter(machine=self)
 
 
 class Order(models.Model):
     order_id = models.IntegerField(unique=True, verbose_name="Numer zlecenia")
+    machine = models.ForeignKey(Machine, on_delete=True, verbose_name="Maszyna")
     start_date = models.DateTimeField(null=True, blank=True, verbose_name="Start zlecenia")
     stop_date = models.DateTimeField(null=True, blank=True, verbose_name="Koniec zlecenia")
-    realization = models.FloatField(null=True, blank=True, verbose_name="Wykonano")
     planned = models.FloatField(verbose_name="Planowane wykonanie")
-    is_taken = models.BooleanField(default=False, verbose_name="Zlecenie zajęte")
     is_finished = models.BooleanField(default=False, verbose_name="Zlecenie zakończone")
-    waste = models.FloatField(null=True, blank=True, verbose_name="Ilość odpadów")
-    machine = models.ForeignKey(Machine, on_delete=True, verbose_name="Maszyna")
-    user = models.ForeignKey(User, on_delete=True, null=True, blank=True, verbose_name="Osoba odpowiedzialna")
 
     class Meta:
         verbose_name = 'Zlecenie'
@@ -43,11 +39,27 @@ class Order(models.Model):
         return "Zlecenie nr {}".format(self.order_id)
 
 
+class Realization(models.Model):
+    start_date = models.DateTimeField(null=True, blank=True, verbose_name="Start realizacji")
+    stop_date = models.DateTimeField(null=True, blank=True, verbose_name="Koniec realizacji")
+    realization = models.FloatField(null=True, blank=True, verbose_name="Wykonano")
+    waste = models.FloatField(null=True, blank=True, verbose_name="Ilość odpadów")
+    user = models.ForeignKey(User, on_delete=True, null=True, blank=True, verbose_name="Osoba odpowiedzialna")
+    order = models.ForeignKey(Order, on_delete=True, verbose_name="Zlecenie")
+
+    class Meta:
+        verbose_name = 'Realizacja'
+        verbose_name_plural = "Realizacje"
+
+    def __str__(self):
+        return "Realizacja nr {}".format(self.pk)
+
+
 class Interruption(models.Model):
     start_date = models.DateTimeField(verbose_name="Początek przestoju")
     stop_date = models.DateTimeField(verbose_name="Koniec przestoju")
     cause = models.IntegerField(choices=CAUSES, verbose_name="Przyczyna przestoju")
-    order = models.ForeignKey(Order, on_delete=True, verbose_name="Zlecenie")
+    realization = models.ForeignKey(Realization, null=True, on_delete=True, verbose_name="Zlecenie")
 
     class Meta:
         verbose_name = 'Przestój'

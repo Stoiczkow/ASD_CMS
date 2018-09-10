@@ -1,8 +1,8 @@
 from django.forms import ModelForm
-from .models import Order
+from .models import Realization
 
 
-class OrderForm(ModelForm):
+class RealizationForm(ModelForm):
     class Meta:
-        model = Order
+        model = Realization
         fields = ['realization', 'waste']

@@ -4,8 +4,8 @@ from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.views import View
 from django.views.generic.edit import CreateView
-from .models import Order, Machine
-from .forms import OrderForm
+from .models import Order, Machine, Realization
+from .forms import RealizationForm
 import datetime
 from django.db import transaction
 # Create your views here.
@@ -22,10 +22,8 @@ def handler500(request):
 class MainPageView(View):
     def get(self, request):
         if not request.user.is_anonymous:
-            orders = Order.objects.filter(user=request.user,
-                                          is_taken=True,
-                                          is_finished=False)
-            ctx = {'orders': orders}
+            realizations = Realization.objects.filter(user=request.user, stop_date=None)
+            ctx = {'realizations': realizations}
 
             return render(request, 'index.html', ctx)
         else:
@@ -43,19 +41,18 @@ class OrdersToTakeView(View):
     def post(self, request):
         try:
             with transaction.atomic():
-                order = Order.objects.get(pk=int(request.POST['order']), is_taken=False)
+                order = Order.objects.get(pk=int(request.POST['order']))
                 machine = order.machine
                 machine.is_taken = True
                 machine.save()
-                order.is_taken = True
-                order.user = request.user
-                order.start_date = datetime.datetime.now()
-                order.save()
+                if not order.start_date:
+                    order.start_date = datetime.datetime.now()
+                    order.save()
+                Realization.objects.create(order=order, user=request.user, start_date=datetime.datetime.now())
                 return HttpResponseRedirect(reverse('index'))
 
         except ObjectDoesNotExist:
-            machines = Machine.filter(is_taken=False)
-            ctx = {'machines': machines, 'error': 'Zlecenie zostało już zajęte.'}
+            ctx = {'error': 'Zlecenie zostało już zajęte.'}
             return render(request, 'orders_tt.html', ctx)
 
 
@@ -66,21 +63,28 @@ class CreateOrderView(CreateView):
     success_url = '/'
 
 
-class CloseOrderView(View):
+class CloseRealizationView(View):
     def get(self, request, pk):
-        form = OrderForm()
+        form = RealizationForm()
         ctx = {'form': form}
         return render(request, 'close_order.html', ctx)
 
     def post(self, request, pk):
-        order = Order.objects.get(pk=pk)
-        form = OrderForm(request.POST)
+        realization = Realization.objects.get(pk=pk)
+        form = RealizationForm(request.POST)
         if form.is_valid():
-            order.realization = float(request.POST['realization'])
-            order.waste = float(request.POST['waste'])
-            order.is_finished = True
-            order.machine.is_taken = False
-            order.machine.save()
-            order.save()
+            realization.realization = float(request.POST['realization'])
+            realization.waste = float(request.POST['waste'])
+            realization.stop_date = datetime.datetime.now()
+            realization.order.machine.is_taken = False
+            realization.order.machine.save()
+            realization.order.save()
+            realization.save()
 
             return HttpResponseRedirect(reverse('index'))
+
+
+class CloseOrderView(View):
+    def get(self, reqiest):
+        pass
+    
