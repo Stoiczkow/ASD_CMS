@@ -103,3 +103,13 @@ class CloseOrderDetailsView(View):
         order.save()
 
         return HttpResponseRedirect(reverse('close_order'))
+
+
+class CurrentInteruptionsView(View):
+    def get(self, request):
+        pass
+
+
+class InterruptionsView(View):
+    def get(self, request):
+        pass

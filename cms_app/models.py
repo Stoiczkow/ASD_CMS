@@ -60,7 +60,12 @@ class Interruption(models.Model):
     stop_date = models.DateTimeField(null=True, blank=True, verbose_name="Koniec przestoju")
     cause = models.IntegerField(null=True, blank=True, choices=CAUSES, verbose_name="Przyczyna przestoju")
     realization = models.ForeignKey(Realization, null=True, on_delete=True, verbose_name="Zlecenie")
+    machine = models.ForeignKey(Machine, on_delete=True, verbose_name="Maszyna")
 
     class Meta:
         verbose_name = 'Przestój'
         verbose_name_plural = "Przestoje"
+
+    @property
+    def interruption_time(self):
+        return abs(self.start_date - self.stop_date)
