@@ -57,8 +57,8 @@ class Realization(models.Model):
 
 class Interruption(models.Model):
     start_date = models.DateTimeField(verbose_name="Początek przestoju")
-    stop_date = models.DateTimeField(verbose_name="Koniec przestoju")
-    cause = models.IntegerField(choices=CAUSES, verbose_name="Przyczyna przestoju")
+    stop_date = models.DateTimeField(null=True, blank=True, verbose_name="Koniec przestoju")
+    cause = models.IntegerField(null=True, blank=True, choices=CAUSES, verbose_name="Przyczyna przestoju")
     realization = models.ForeignKey(Realization, null=True, on_delete=True, verbose_name="Zlecenie")
 
     class Meta:
