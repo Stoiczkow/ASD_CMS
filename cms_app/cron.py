@@ -4,7 +4,9 @@ import glob
 import os
 import re
 from django.core.exceptions import ObjectDoesNotExist
-from .models import Interruption, Machine
+from django.db.models import Q
+from .models import Interruption, Machine, Realization
+
 
 @kronos.register('* * * * *')
 def process_black_box():
@@ -44,5 +46,12 @@ def process_black_box():
                         interruption.save()
                     except (ObjectDoesNotExist, ValueError):
                         pass
+
                     current_interruption = ''
 
+@kronos.register('* * * * *')
+def fill_interruptions():
+    interruptions = Interruption.objects.filter(realization=None)
+    for interruption in interruptions:
+        if interruption.stop_date:
+            pass
