@@ -44,6 +44,7 @@ class Realization(models.Model):
     stop_date = models.DateTimeField(null=True, blank=True, verbose_name="Koniec realizacji")
     realization = models.FloatField(null=True, blank=True, verbose_name="Wykonano")
     waste = models.FloatField(null=True, blank=True, verbose_name="Ilość odpadów")
+    is_active = models.BooleanField(default=True, blank=True, verbose_name="Czy realizacja jest aktywna?")
     user = models.ForeignKey(User, on_delete=True, null=True, blank=True, verbose_name="Osoba odpowiedzialna")
     order = models.ForeignKey(Order, on_delete=True, verbose_name="Zlecenie")
 
@@ -58,8 +59,10 @@ class Realization(models.Model):
 class Interruption(models.Model):
     start_date = models.DateTimeField(verbose_name="Początek przestoju")
     stop_date = models.DateTimeField(null=True, blank=True, verbose_name="Koniec przestoju")
-    cause = models.IntegerField(null=True, blank=True, choices=CAUSES, verbose_name="Przyczyna przestoju")
-    realization = models.ForeignKey(Realization, null=True, on_delete=True, verbose_name="Zlecenie")
+    cause_1 = models.IntegerField(null=True, blank=True, choices=CAUSES, verbose_name="Przyczyna przestoju 1")
+    cause_2 = models.IntegerField(null=True, blank=True, choices=CAUSES, verbose_name="Przyczyna przestoju 2")
+    cause_3 = models.IntegerField(null=True, blank=True, choices=CAUSES, verbose_name="Przyczyna przestoju 3")
+    realization = models.ForeignKey(Realization, null=True, on_delete=True, verbose_name="Realizacja")
     machine = models.ForeignKey(Machine, on_delete=True, verbose_name="Maszyna")
 
     class Meta:

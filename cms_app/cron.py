@@ -54,4 +54,20 @@ def fill_interruptions():
     interruptions = Interruption.objects.filter(realization=None)
     for interruption in interruptions:
         if interruption.stop_date:
-            pass
+            try:
+                realization = Realization.objects.get(order__machine=interruption.machine,
+                                                      start_date__lte=interruption.stop_date,
+                                                      stop_date__gte=interruption.start_date)
+            except ObjectDoesNotExist:
+                continue
+
+            interruption.realization = realization
+            interruption.save()
+        else:
+            try:
+                realization = Realization.objects.get(order__machine=interruption.machine,
+                                                      is_active=True)
+                interruption.realization = realization
+                interruption.save()
+            except ObjectDoesNotExist:
+                continue

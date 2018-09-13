@@ -76,6 +76,7 @@ class CloseRealizationView(View):
             realization.realization = float(request.POST['realization'])
             realization.waste = float(request.POST['waste'])
             realization.stop_date = datetime.datetime.now()
+            realization.is_active = False
             realization.order.machine.is_taken = False
             realization.order.machine.save()
             realization.order.save()
