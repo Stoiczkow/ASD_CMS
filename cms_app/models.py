@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+import datetime
 # Create your models here.
 CAUSES = (
     (1, "Cause"),
@@ -71,4 +72,7 @@ class Interruption(models.Model):
 
     @property
     def interruption_time(self):
-        return abs(self.start_date - self.stop_date)
+        if self.stop_date:
+            return abs(self.start_date - self.stop_date)
+        else:
+            return abs(self.start_date - datetime.datetime.now(datetime.timezone.utc))

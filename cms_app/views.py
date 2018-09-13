@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views import View
 from django.views.generic.edit import CreateView
 from .models import Order, Machine, Realization, Interruption
-from .forms import RealizationForm
+from .forms import RealizationForm, InterruptionForm
 import datetime
 from django.db import transaction
 # Create your views here.
@@ -116,3 +116,12 @@ class InterruptionsListView(View):
         interruptions = Interruption.objects.filter(realization__user=request.user)
         ctx = {'interruptions': interruptions}
         return render(request, 'interruptions_list.html', ctx)
+
+
+class CloseInterruptionView(View):
+    def get(self, request, pk):
+        form = InterruptionForm()
+        interruption = Interruption.objects.get(pk=pk)
+        ctx = {'form': form,
+               'interruption': interruption}
+        return render(request, 'interruption_form.html', ctx)
