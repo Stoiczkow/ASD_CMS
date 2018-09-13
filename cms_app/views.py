@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.views import View
 from django.views.generic.edit import CreateView
-from .models import Order, Machine, Realization
+from .models import Order, Machine, Realization, Interruption
 from .forms import RealizationForm
 import datetime
 from django.db import transaction
@@ -111,6 +111,8 @@ class CurrentInteruptionsView(View):
         pass
 
 
-class InterruptionsView(View):
+class InterruptionsListView(View):
     def get(self, request):
-        pass
+        interruptions = Interruption.objects.filter(realization__user=request.user)
+        ctx = {'interruptions': interruptions}
+        return render(request, 'interruptions_list.html', ctx)
