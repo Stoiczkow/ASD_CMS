@@ -11,15 +11,56 @@
     <p>  ze zlecenia {{ interruption.realization.order.pk }}</p>
     <form method="post">
         {% csrf_token %}
-        <div class="form-check">
-            {% render_field form.cause_1|add_class:"form-check-input" placeholder="Wybierz przyczynę" %}
-        </div>
-        <div class="form-check">
-            {% render_field form.cause_2|add_class:"form-check-input" placeholder="Wybierz przyczynę" %}
-        </div>
-        <div class="form-check">
-            {% render_field form.cause_3|add_class:"form-check-input" placeholder="Wybierz przyczynę" %}
-        </div>
+        <p>
+            <button type="button" class="btn btn-dark" data-toggle="collapse" data-target="#cause_1">Przyczyna 1</button>
+            <div id="accordion1">
+                <div id="cause_1" class="collapse">
+                {% for key, cause in causes.items %}
+                    <p><button type="button" class="btn btn-secondary" data-toggle="collapse" data-target="#{{ key|cut:' ' }}cause_1">{{ key }}</button></p>
+                    <div id="{{ key|cut:' ' }}cause_1" class="collapse" data-parent="#accordion1">
+                        {% for reason in cause %}
+                        <p><input type="radio" value="{{ reason }}" name="cause_1"> {{ reason }}</input></p>
+                        {% endfor %}
+                    </div>
+
+                {% endfor %}
+                </form>
+            </div>
+        </p>
+
+        <p>
+            <button type="button" class="btn btn-dark" data-toggle="collapse" data-target="#cause_2">Przyczyna 2</button>
+            <div id="accordion2">
+                <div id="cause_2" class="collapse">
+                {% for key, cause in causes.items %}
+                    <p><button type="button" class="btn btn-secondary" data-toggle="collapse" data-target="#{{ key|cut:' ' }}cause_2">{{ key }}</button></p>
+                    <div id="{{ key|cut:' ' }}cause_2" class="collapse" data-parent="#accordion2">
+                        {% for reason in cause %}
+                        <p><input type="radio" value="{{ reason }}" name="cause_2"> {{ reason }}</input></p>
+                        {% endfor %}
+                    </div>
+
+                {% endfor %}
+                </div>
+            </div>
+        </p>
+
+        <p>
+            <button type="button" class="btn btn-dark" data-toggle="collapse" data-target="#cause_3">Przyczyna 3</button>
+            <div id="accordion3">
+                <div id="cause_3" class="collapse">
+                {% for key, cause in causes.items %}
+                    <p><button type="button" class="btn btn-secondary" data-toggle="collapse" data-target="#{{ key|cut:' ' }}cause_3">{{ key }}</button></p>
+                    <div id="{{ key|cut:' ' }}cause_3" class="collapse" data-parent="#accordion3">
+                        {% for reason in cause %}
+                        <p><input type="radio" value="{{ reason }}" name="cause_3"> {{ reason }}</input></p>
+                        {% endfor %}
+                    </div>
+
+                {% endfor %}
+                </div>
+            </div>
+        </p>
 
         <p><button type="submit" class="btn btn-dark">Zamknij przestój</button></p>
     </form>

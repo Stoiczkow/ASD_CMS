@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.views import View
 from django.views.generic.edit import CreateView
-from .models import Order, Machine, Realization, Interruption
+from .models import Order, Machine, Realization, Interruption, ETYKIECIARKA_CAUSES, KARTONIARKA_CAUSES
 from .forms import RealizationForm, InterruptionForm
 import datetime
 from django.db import transaction
@@ -113,15 +113,28 @@ class CurrentInteruptionsView(View):
 
 class InterruptionsListView(View):
     def get(self, request):
-        interruptions = Interruption.objects.filter(realization__user=request.user)
+        interruptions = Interruption.objects.filter(realization__user=request.user,
+                                                    is_closed=False)
         ctx = {'interruptions': interruptions}
         return render(request, 'interruptions_list.html', ctx)
 
 
 class CloseInterruptionView(View):
     def get(self, request, pk):
-        form = InterruptionForm()
         interruption = Interruption.objects.get(pk=pk)
-        ctx = {'form': form,
-               'interruption': interruption}
+        if interruption.machine.name == 'Etykieciarka':
+            causes = ETYKIECIARKA_CAUSES
+        elif interruption.machine.name == 'Kartoniarka':
+            causes = KARTONIARKA_CAUSES
+
+        ctx = {'interruption': interruption,
+               'causes': causes}
+
+        return render(request, 'interruption_form.html', ctx)
+
+    def post(self, request, pk):
+        form = InterruptionForm(request.POST)
+        if form.is_valid():
+            print(request.POST['cause_1'])
+        ctx = {}
         return render(request, 'interruption_form.html', ctx)

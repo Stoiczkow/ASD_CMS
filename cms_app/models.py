@@ -2,9 +2,39 @@ from django.db import models
 from django.contrib.auth.models import User
 import datetime
 # Create your models here.
-CAUSES = (
-    (1, "Cause"),
-)
+ETYKIECIARKA_CAUSES = {"Awaria":["Awaria"],
+                       "Brak Zlecenia": ["Brak zlecenia"],
+                       "Inne": ["Inne"],
+                       "Przerwy": ["Przerwa", "Oczekiwanie na DUR", "Oczekiwanie na KJ",
+                                   "Przerwa w pakowaniu - brak presonelu DP",
+                                   "Przerwa w pakowaniu - brak materiału"],
+                       "Materiał lub Nadruk": ["Wymiana krążka z etykietami", "Wymiana folii termotransferowej",
+                                               "Zerwanie taśmy", "Jakość nadruku"],
+                       "Regulacja": ["Pozycjonowanie etykiety na wkładzie",
+                                     "Blokada transportera wejściowego"],
+                       "Blokada": ["Blokada transportera wejściowego", "Blokada koła wejściowego",
+                                   "Blokada transportera wyjściowego", "Blokada koła wyjściowego",
+                                   "Zgubiony produkt na wyjściu", "Foto stop"],
+                       "Restart": ["Restart"]}
+
+KARTONIARKA_CAUSES = {"Awaria":["Awaria"],
+                      "Brak Zlecenia": ["Brak zlecenia"],
+                      "Inne": ["Inne"],
+                      "Przerwy": ["Przerwa", "Oczekiwanie na DUR", "Oczekiwanie na KJ",
+                                  "Przerwa w pakowaniu - brak presonelu DP",
+                                  "Przerwa w pakowaniu - brak materiału"],
+                      "Materiał": ["Wymiana foli PVC", "Wymiana folii aluminiowej"],
+                      "Blistrzarka": ["Zablokowany przepływ produktu", "Stacja formowania blistrów",
+                                      "Podawanie wkładów", "Stacja obecności wkładów w blistrze",
+                                      "Stacja perforacji", "Stacja wycinania", "Czujniki kontrolne - blistrzarka",
+                                      "Regulacja modułu podawania blistrów", "Regulacja buforu magazynowego"],
+                      "Ulotki/Kartoniki": ["Podawanie ulotek", "Składarka ulotek",
+                                           "Synchronizacja ulotki względem kartonika", "Podawanie, formowanie kartonika",
+                                           "Zamykanie kartonika", "cCzytnik kodu ulotki", "Czytnik kodu kartonika",
+                                           "Czujnik blistra w kartoniku", "Czujnik ulotki w kartoniku",
+                                           "Jakość nadruku", "Zablokowany przepływ produktu", "Blokada popychacza"],
+                      "Zaklejarka - Taśma": ["Zaklejarka - Taśma"],
+                      "Zaklejarka - Noże": ["Zaklejarka - Noże"]}
 
 
 class Machine(models.Model):
@@ -60,10 +90,11 @@ class Realization(models.Model):
 class Interruption(models.Model):
     start_date = models.DateTimeField(verbose_name="Początek przestoju")
     stop_date = models.DateTimeField(null=True, blank=True, verbose_name="Koniec przestoju")
-    cause_1 = models.IntegerField(null=True, blank=True, choices=CAUSES, verbose_name="Przyczyna przestoju 1")
-    cause_2 = models.IntegerField(null=True, blank=True, choices=CAUSES, verbose_name="Przyczyna przestoju 2")
-    cause_3 = models.IntegerField(null=True, blank=True, choices=CAUSES, verbose_name="Przyczyna przestoju 3")
+    cause_1 = models.CharField(max_length=256, null=True, blank=True, verbose_name="Przyczyna przestoju 1")
+    cause_2 = models.CharField(max_length=256, null=True, blank=True, verbose_name="Przyczyna przestoju 2")
+    cause_3 = models.CharField(max_length=256, null=True, blank=True, verbose_name="Przyczyna przestoju 3")
     realization = models.ForeignKey(Realization, null=True, on_delete=True, verbose_name="Realizacja")
+    is_closed = models.BooleanField(default=False, blank=True, verbose_name="Czy przestój jest zamknięty?")
     machine = models.ForeignKey(Machine, on_delete=True, verbose_name="Maszyna")
 
     class Meta:
