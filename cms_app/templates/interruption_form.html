@@ -11,7 +11,7 @@
     <p>  ze zlecenia {{ interruption.realization.order.pk }}</p>
     <form method="post">
         {% csrf_token %}
-        <p>
+
             <button type="button" class="btn btn-dark" data-toggle="collapse" data-target="#cause_1">Przyczyna 1</button>
             <div id="accordion1">
                 <div id="cause_1" class="collapse">
@@ -24,11 +24,11 @@
                     </div>
 
                 {% endfor %}
-                </form>
+                </div>
             </div>
-        </p>
 
-        <p>
+
+
             <button type="button" class="btn btn-dark" data-toggle="collapse" data-target="#cause_2">Przyczyna 2</button>
             <div id="accordion2">
                 <div id="cause_2" class="collapse">
@@ -43,9 +43,9 @@
                 {% endfor %}
                 </div>
             </div>
-        </p>
 
-        <p>
+
+
             <button type="button" class="btn btn-dark" data-toggle="collapse" data-target="#cause_3">Przyczyna 3</button>
             <div id="accordion3">
                 <div id="cause_3" class="collapse">
@@ -60,12 +60,12 @@
                 {% endfor %}
                 </div>
             </div>
-        </p>
+
 
         <p><button type="submit" class="btn btn-dark">Zamknij przestój</button></p>
     </form>
 
 
-</div>
+</form>
 
 {% endblock %}

@@ -135,6 +135,6 @@ class CloseInterruptionView(View):
     def post(self, request, pk):
         form = InterruptionForm(request.POST)
         if form.is_valid():
-            print(request.POST['cause_1'])
+            pass
         ctx = {}
         return render(request, 'interruption_form.html', ctx)
