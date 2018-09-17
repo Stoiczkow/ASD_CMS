@@ -109,10 +109,10 @@ class CloseOrderDetailsView(View):
 class CurrentInteruptionsView(View):
     def get(self, request):
         interruptions = Interruption.objects.filter(realization__user=request.user,
-                                                    is_closed=False,
-                                                    interruption_time_gte=datetime.timedelta(minutes=10))
+                                                    is_closed=False)
 
-        return HttpResponse(status=200)
+        
+        return HttpResponse("Text only, please.", content_type="text/plain", status=200)
 
 
 class InterruptionsListView(View):

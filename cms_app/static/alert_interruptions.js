@@ -1,5 +1,4 @@
-document.addEventListener("DOMContentLoaded", function() {
-    var btns = document.getElementsByClassName('list-group-item');
-    console.log(btns);
-    console.log('cooo')
-});
+setInterval(function() {
+  $.get('/current_interruptions/');
+  console.log("poszlo ze static");
+}, 1000 * 60 * 1);
