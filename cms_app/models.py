@@ -95,6 +95,7 @@ class Interruption(models.Model):
     cause_3 = models.CharField(max_length=256, null=True, blank=True, verbose_name="Przyczyna przestoju 3")
     realization = models.ForeignKey(Realization, null=True, on_delete=True, verbose_name="Realizacja")
     is_closed = models.BooleanField(default=False, blank=True, verbose_name="Czy przestój jest zamknięty?")
+    was_alerted = models.BooleanField(default=False, blank=True, verbose_name="Czy przestój jest zamknięty?")
     machine = models.ForeignKey(Machine, on_delete=True, verbose_name="Maszyna")
 
     class Meta:

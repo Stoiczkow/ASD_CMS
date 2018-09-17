@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.views import View
@@ -108,7 +108,11 @@ class CloseOrderDetailsView(View):
 
 class CurrentInteruptionsView(View):
     def get(self, request):
-        pass
+        interruptions = Interruption.objects.filter(realization__user=request.user,
+                                                    is_closed=False,
+                                                    interruption_time_gte=datetime.timedelta(minutes=10))
+
+        return HttpResponse(status=200)
 
 
 class InterruptionsListView(View):
@@ -134,7 +138,12 @@ class CloseInterruptionView(View):
 
     def post(self, request, pk):
         form = InterruptionForm(request.POST)
+        interruption = Interruption.objects.get(pk=pk)
         if form.is_valid():
-            pass
+            interruption.cause_1 = request.POST.get('cause_1')
+            interruption.cause_2 = request.POST.get('cause_2')
+            interruption.cause_3 = request.POST.get('cause_3')
+            interruption.is_closed = True
+            interruption.save()
         ctx = {}
-        return render(request, 'interruption_form.html', ctx)
+        return HttpResponseRedirect(reverse('interruptions'))
