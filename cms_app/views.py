@@ -8,6 +8,7 @@ from .models import Order, Machine, Realization, Interruption, ETYKIECIARKA_CAUS
 from .forms import RealizationForm, InterruptionForm
 import datetime
 from django.db import transaction
+from django.http import JsonResponse
 # Create your views here.
 
 
@@ -109,10 +110,19 @@ class CloseOrderDetailsView(View):
 class CurrentInteruptionsView(View):
     def get(self, request):
         interruptions = Interruption.objects.filter(realization__user=request.user,
-                                                    is_closed=False)
+                                                    is_closed=False,
+                                                    was_alerted=False)
+        ctx = {}
+        alert = False
+        for interruption in interruptions:
+            if interruption.interruption_time >= datetime.timedelta(minutes=10):
+                alert = True
+                interruption.was_alerted = True
+                interruption.save()
 
-        
-        return HttpResponse("Text only, please.", content_type="text/plain", status=200)
+        ctx['alert'] = alert
+
+        return JsonResponse(ctx)
 
 
 class InterruptionsListView(View):

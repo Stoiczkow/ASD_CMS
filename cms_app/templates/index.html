@@ -19,9 +19,17 @@
     <script src="{% static 'alert_interruptions.js' %}"></script>
     <script>
         setInterval(function() {
-  $.get('/current_interruptions');
-  console.log("poszlo z index");
-}, 1000 * 60 * 1);
+        var button = $('#alertbtn')
+            $.ajax({
+                type: 'GET',
+                url: 'current_interruptions',
+                success: function(data){
+                    if( data['alert'] == true){
+                        button.trigger('click');
+                    };
+                }
+            });
+        }, 1000 * 60 * 1);
     </script>
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -67,6 +75,39 @@
     </ul>
     {% endif %}
 </nav>
+
+<div class="container">
+  <!-- Button to Open the Modal -->
+  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" id="alertbtn" style="display:none;">
+  </button>
+
+  <!-- The Modal -->
+  <div class="modal fade" id="myModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Przestoje!</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+
+        <!-- Modal body -->
+        <div class="modal-body">
+          Wykryto przestój dłuższy niż 10 minut!
+        </div>
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <a href="{% url 'interruptions' %}"><button type="button" class="btn btn-primary">Przejdź do przestojów</button></a>
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Zamknij</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
 {% block content %}
 <div class="container">
   <h4 class="text-center">Twoje realizacje</h4>
