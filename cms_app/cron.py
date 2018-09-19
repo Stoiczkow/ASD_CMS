@@ -31,23 +31,30 @@ def process_black_box():
                 if not int(found[col]):
                     if not current_interruption:
                         current_interruption = str(line[0:19])
-                        current_interruption_dt = datetime.datetime.strptime(current_interruption, '%d.%m.%Y %H:%M:%S')
+                        current_interruption_dt = datetime.datetime.strptime(
+                            current_interruption, '%d.%m.%Y %H:%M:%S')
                     try:
-                        interruption = Interruption.objects.get(start_date=current_interruption_dt,
-                                                                machine=machines[col])
+                        interruption = Interruption.objects.get(
+                            start_date=current_interruption_dt,
+                            machine=machines[col])
                     except ObjectDoesNotExist:
-                        interruption = Interruption.objects.create(start_date=current_interruption_dt,
-                                                                   machine=machines[col])
+                        interruption = Interruption.objects.create(
+                            start_date=current_interruption_dt,
+                            machine=machines[col])
                 else:
                     try:
-                        interruption = Interruption.objects.get(start_date=datetime.datetime.strptime(current_interruption, '%d.%m.%Y %H:%M:%S'),
-                                                                machine=machines[col])
-                        interruption.stop_date = datetime.datetime.strptime(str(line[0:19]), '%d.%m.%Y %H:%M:%S')
+                        interruption = Interruption.objects.get(
+                            start_date=datetime.datetime.strptime(
+                                current_interruption, '%d.%m.%Y %H:%M:%S'),
+                            machine=machines[col])
+                        interruption.stop_date = datetime.datetime.strptime(
+                            str(line[0:19]), '%d.%m.%Y %H:%M:%S')
                         interruption.save()
                     except (ObjectDoesNotExist, ValueError):
                         pass
 
                     current_interruption = ''
+
 
 @kronos.register('* * * * *')
 def fill_interruptions():
@@ -55,9 +62,10 @@ def fill_interruptions():
     for interruption in interruptions:
         if interruption.stop_date:
             try:
-                realization = Realization.objects.get(order__machine=interruption.machine,
-                                                      start_date__lte=interruption.stop_date,
-                                                      stop_date__gte=interruption.start_date)
+                realization = Realization.objects.get(
+                    order__machine=interruption.machine,
+                    start_date__lte=interruption.stop_date,
+                    stop_date__gte=interruption.start_date)
             except ObjectDoesNotExist:
                 continue
 
@@ -65,8 +73,9 @@ def fill_interruptions():
             interruption.save()
         else:
             try:
-                realization = Realization.objects.get(order__machine=interruption.machine,
-                                                      is_active=True)
+                realization = Realization.objects.get(
+                    order__machine=interruption.machine,
+                    is_active=True)
                 interruption.realization = realization
                 interruption.save()
             except ObjectDoesNotExist:

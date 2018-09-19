@@ -4,11 +4,14 @@ from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.views import View
 from django.views.generic.edit import CreateView
-from .models import Order, Machine, Realization, Interruption, ETYKIECIARKA_CAUSES, KARTONIARKA_CAUSES
+from .models import Order, Machine, Realization, Interruption, \
+    ETYKIECIARKA_CAUSES, KARTONIARKA_CAUSES
 from .forms import RealizationForm, InterruptionForm
 import datetime
 from django.db import transaction
 from django.http import JsonResponse
+
+
 # Create your views here.
 
 
@@ -23,7 +26,8 @@ def handler500(request):
 class MainPageView(View):
     def get(self, request):
         if not request.user.is_anonymous:
-            realizations = Realization.objects.filter(user=request.user, stop_date=None)
+            realizations = Realization.objects.filter(user=request.user,
+                                                      stop_date=None)
             ctx = {'realizations': realizations}
 
             return render(request, 'index.html', ctx)
@@ -49,7 +53,8 @@ class OrdersToTakeView(View):
                 if not order.start_date:
                     order.start_date = datetime.datetime.now()
                     order.save()
-                Realization.objects.create(order=order, user=request.user, start_date=datetime.datetime.now())
+                Realization.objects.create(order=order, user=request.user,
+                                           start_date=datetime.datetime.now())
                 return HttpResponseRedirect(reverse('index'))
 
         except ObjectDoesNotExist:
@@ -109,13 +114,15 @@ class CloseOrderDetailsView(View):
 
 class CurrentInteruptionsView(View):
     def get(self, request):
-        interruptions = Interruption.objects.filter(realization__user=request.user,
-                                                    is_closed=False,
-                                                    was_alerted=False)
+        interruptions = Interruption.objects.filter(
+            realization__user=request.user,
+            is_closed=False,
+            was_alerted=False)
         ctx = {}
         alert = False
         for interruption in interruptions:
-            if interruption.interruption_time >= datetime.timedelta(minutes=10):
+            if interruption.interruption_time >= datetime.timedelta(
+                    minutes=10):
                 alert = True
                 interruption.was_alerted = True
                 interruption.save()
@@ -127,8 +134,9 @@ class CurrentInteruptionsView(View):
 
 class InterruptionsListView(View):
     def get(self, request):
-        interruptions = Interruption.objects.filter(realization__user=request.user,
-                                                    is_closed=False)
+        interruptions = Interruption.objects.filter(
+            realization__user=request.user,
+            is_closed=False)
         ctx = {'interruptions': interruptions}
         return render(request, 'interruptions_list.html', ctx)
 
