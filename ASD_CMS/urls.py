@@ -35,7 +35,7 @@ urlpatterns = [
     path('close_order', CloseOrderListView.as_view(), name='close_order'),
     path('close_order/<int:pk>', CloseOrderDetailsView.as_view(),
          name='close_detail'),
-    path('current_interruptions', CurrentInteruptionsView.as_view(),
+    path('current_interruptions/', CurrentInteruptionsView.as_view(),
          name='current_inter'),
     path('interruptions', InterruptionsListView.as_view(),
          name='interruptions'),
