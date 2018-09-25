@@ -6,7 +6,7 @@ from django.views import View
 from django.views.generic.edit import CreateView
 from .models import Order, Machine, Realization, Interruption, \
     ETYKIECIARKA_CAUSES, KARTONIARKA_CAUSES, DBName
-from .forms import RealizationForm, InterruptionForm, OrderForm
+from .forms import RealizationForm, InterruptionForm
 import datetime
 from django.db import transaction
 from django.http import JsonResponse
@@ -67,19 +67,19 @@ class OrdersToTakeView(View):
 
 class CreateOrderView(View):
     def get(self, request):
-        form = OrderForm()
-        ctx = {'form': form}
+        ctx = {'machines': Machine.objects.using(DBName.objects.get(pk=1).name).all()}
         return render(request, 'order_form.html', ctx)
 
     def post(self, request):
-        form = OrderForm(request.POST)
-        print(request.POST)
-        if form.is_valid():
-            db_name = DBName.objects.get(pk=1).name
-            Order.objects.using(db_name).create(order_id=int(request.POST['order_id']),
-                                                planned=int(request.POST['planned']),
-                                                machine=Machine.objects.using(db_name).get(pk=int(request.POST['machine'])))
-            return HttpResponseRedirect(reverse('index'))
+        pass
+        # form = OrderForm(request.POST)
+        # print(request.POST)
+        # if form.is_valid():
+        #     db_name = DBName.objects.get(pk=1).name
+        #     Order.objects.using(db_name).create(order_id=int(request.POST['order_id']),
+        #                                         planned=int(request.POST['planned']),
+        #                                         machine=Machine.objects.using(db_name).get(pk=int(request.POST['machine'])))
+        #     return HttpResponseRedirect(reverse('index'))
 
 
 class CloseRealizationView(View):
