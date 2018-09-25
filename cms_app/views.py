@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.views import View
@@ -28,8 +28,7 @@ class MainPageView(View):
             db_name = DBName.objects.get(pk=1).name
             realizations = Realization.objects.using(db_name).filter(user=request.user,
                                                       stop_date=None)
-            ctx = {'realizations': realizations,
-                   'sess': DBName.objects.get(pk=1).name}
+            ctx = {'realizations': realizations}
 
             return render(request, 'index.html', ctx)
         else:
@@ -180,6 +179,10 @@ class ChangeSaveView(View):
             db_name = DBName.objects.get(pk=1)
             db_name.name = request.POST['change']
             db_name.save()
+            db_name_2 = DBName.objects.using('excel').get(pk=1)
+            db_name_2.name = request.POST['change']
+            db_name_2.save(using='excel')
         except ObjectDoesNotExist:
             DBName.objects.create(name=request.POST['change'])
+            DBName.objects.using('excel').create(name=request.POST['change'])
         return HttpResponseRedirect(reverse('index'))

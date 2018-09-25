@@ -3,9 +3,9 @@ import datetime
 import glob
 import os
 import re
-import requests
+from openpyxl import Workbook
 from django.core.exceptions import ObjectDoesNotExist
-from .models import Interruption, Machine, Realization, DBName
+from .models import Interruption, Machine, Realization, DBName, Order
 
 
 @kronos.register('* * * * *')
@@ -81,3 +81,33 @@ def fill_interruptions():
                 interruption.save(using=db_name)
             except ObjectDoesNotExist:
                 continue
+
+
+@kronos.register('* * * * *')
+def write_excel():
+    db_name = DBName.objects.get(pk=1).name
+    if db_name == 'excel':
+        wb = Workbook()
+        orders = wb.active
+        orders.title = 'Zlecenia'
+        orders.append(['Maszyna', 'Początek', "Koniec", 'Planowane wykonanie'])
+        for order in Order.objects.using(db_name).all():
+            orders.append([order.machine.name, order.start_date,
+                           order.stop_date, order.planned])
+
+        realizations = wb.create_sheet(title="Realizacje")
+
+        realizations.append(['Numer zlecenia', 'Początek', 'Koniec',
+                             'Straty', 'Pracownik'])
+        for realization in Realization.objects.using(db_name).all():
+            realizations.append([realization.order.order_id, realization.start_date,
+                                 realization.stop_date, realization.waste, realization.user.username])
+
+        interruptions = wb.create_sheet(title="Przestoje")
+        interruptions.append(['Początek', 'Koniec', 'Realizacja', 'Przyczyna 1',
+                              'Przyczyna 2', 'Przyczyna_3'])
+        for interruption in Interruption.objects.using(db_name).all():
+            interruptions.append([interruption.start_date, interruption.stop_date,
+                                 interruption.realization, interruption.cause_1,
+                                 interruption.cause_2, interruption.cause_3])
+        wb.save('data.xlsx')
