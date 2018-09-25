@@ -5,15 +5,13 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views import View
 from django.views.generic.edit import CreateView
 from .models import Order, Machine, Realization, Interruption, \
-    ETYKIECIARKA_CAUSES, KARTONIARKA_CAUSES
+    ETYKIECIARKA_CAUSES, KARTONIARKA_CAUSES, DBName
 from .forms import RealizationForm, InterruptionForm
 import datetime
 from django.db import transaction
 from django.http import JsonResponse
 
-
 # Create your views here.
-SAVE_TO_DB = True
 
 
 def handler404(request):
@@ -27,9 +25,11 @@ def handler500(request):
 class MainPageView(View):
     def get(self, request):
         if not request.user.is_anonymous:
-            realizations = Realization.objects.filter(user=request.user,
+            db_name = DBName.objects.get(pk=1).name
+            realizations = Realization.objects.using(db_name).filter(user=request.user,
                                                       stop_date=None)
-            ctx = {'realizations': realizations}
+            ctx = {'realizations': realizations,
+                   'sess': DBName.objects.get(pk=1).name}
 
             return render(request, 'index.html', ctx)
         else:
@@ -38,7 +38,8 @@ class MainPageView(View):
 
 class OrdersToTakeView(View):
     def get(self, request):
-        machines = Machine.objects.filter(is_taken=False)
+        db_name = DBName.objects.get(pk=1).name
+        machines = Machine.objects.using(db_name).filter(is_taken=False)
 
         ctx = {'machines': machines}
 
@@ -47,14 +48,16 @@ class OrdersToTakeView(View):
     def post(self, request):
         try:
             with transaction.atomic():
-                order = Order.objects.get(pk=int(request.POST['order']))
+                db_name = DBName.objects.get(pk=1).name
+                order = Order.objects.using(db_name).get(pk=int(request.POST['order']))
                 machine = order.machine
                 machine.is_taken = True
-                machine.save()
+                machine.save(using=db_name)
+
                 if not order.start_date:
                     order.start_date = datetime.datetime.now()
-                    order.save()
-                Realization.objects.create(order=order, user=request.user,
+                    order.save(using=db_name)
+                Realization.objects.using(db_name).create(order=order, user=request.user,
                                            start_date=datetime.datetime.now())
                 return HttpResponseRedirect(reverse('index'))
 
@@ -77,7 +80,8 @@ class CloseRealizationView(View):
         return render(request, 'close_order.html', ctx)
 
     def post(self, request, pk):
-        realization = Realization.objects.get(pk=pk)
+        db_name = DBName.objects.get(pk=1).name
+        realization = Realization.objects.using(db_name).get(pk=pk)
         form = RealizationForm(request.POST)
         if form.is_valid():
             realization.realization = float(request.POST['realization'])
@@ -85,37 +89,37 @@ class CloseRealizationView(View):
             realization.stop_date = datetime.datetime.now()
             realization.is_active = False
             realization.order.machine.is_taken = False
-            realization.order.machine.save()
-            realization.order.save()
-            realization.save()
+            realization.order.machine.save(using=db_name)
+            realization.order.save(using=db_name)
+            realization.save(using=db_name)
 
             return HttpResponseRedirect(reverse('index'))
 
 
 class CloseOrderListView(View):
     def get(self, request):
-        orders = Order.objects.filter(is_finished=False)
+        orders = Order.objects.using(DBName.objects.get(pk=1).name).filter(is_finished=False)
         ctx = {'orders': orders}
         return render(request, 'orders_to_close.html', ctx)
 
 
 class CloseOrderDetailsView(View):
     def get(self, request, pk):
-        order = Order.objects.get(pk=pk)
+        order = Order.objects.using(DBName.objects.get(pk=1).name).get(pk=pk)
         ctx = {'order': order}
         return render(request, 'order_to_close.html', ctx)
 
     def post(self, request, pk):
-        order = Order.objects.get(pk=int(request.POST['order']))
+        order = Order.objects.using(DBName.objects.get(pk=1).name).get(pk=int(request.POST['order']))
         order.is_finished = True
-        order.save()
+        order.save(using=DBName.objects.get(pk=1).name)
 
         return HttpResponseRedirect(reverse('close_order'))
 
 
 class CurrentInteruptionsView(View):
     def get(self, request):
-        interruptions = Interruption.objects.filter(
+        interruptions = Interruption.objects.using(DBName.objects.get(pk=1).name).filter(
             realization__user=request.user,
             is_closed=False,
             was_alerted=False)
@@ -126,7 +130,7 @@ class CurrentInteruptionsView(View):
                     minutes=10):
                 alert = True
                 interruption.was_alerted = True
-                interruption.save()
+                interruption.save(using=DBName.objects.get(pk=1).name)
 
         ctx['alert'] = alert
 
@@ -135,7 +139,7 @@ class CurrentInteruptionsView(View):
 
 class InterruptionsListView(View):
     def get(self, request):
-        interruptions = Interruption.objects.filter(
+        interruptions = Interruption.objects.using(DBName.objects.get(pk=1).name).filter(
             realization__user=request.user,
             is_closed=False)
         ctx = {'interruptions': interruptions}
@@ -144,7 +148,7 @@ class InterruptionsListView(View):
 
 class CloseInterruptionView(View):
     def get(self, request, pk):
-        interruption = Interruption.objects.get(pk=pk)
+        interruption = Interruption.objects.using(DBName.objects.get(pk=1).name).get(pk=pk)
         if interruption.machine.name == 'Etykieciarka':
             causes = ETYKIECIARKA_CAUSES
         elif interruption.machine.name == 'Kartoniarka':
@@ -157,26 +161,25 @@ class CloseInterruptionView(View):
 
     def post(self, request, pk):
         form = InterruptionForm(request.POST)
-        interruption = Interruption.objects.get(pk=pk)
+        interruption = Interruption.objects.using(DBName.objects.get(pk=1).name).get(pk=pk)
         if form.is_valid():
             interruption.cause_1 = request.POST.get('cause_1')
             interruption.cause_2 = request.POST.get('cause_2')
             interruption.cause_3 = request.POST.get('cause_3')
             interruption.is_closed = True
-            interruption.save()
+            interruption.save(using=DBName.objects.get(pk=1).name)
         return HttpResponseRedirect(reverse('interruptions'))
 
 
 class ChangeSaveView(View):
     def get(self, request):
-        return render(request, 'change_form.html', ctx)
+        return render(request, 'change_form.html', {})
 
     def post(self, request):
-        global SAVE_TO_DB
-        option = request.POST['change']
-        if option == 'db':
-            SAVE_TO_DB = True
-        elif option == 'excel':
-            SAVE_TO_DB = False
-
+        try:
+            db_name = DBName.objects.get(pk=1)
+            db_name.name = request.POST['change']
+            db_name.save()
+        except ObjectDoesNotExist:
+            DBName.objects.create(name=request.POST['change'])
         return HttpResponseRedirect(reverse('index'))

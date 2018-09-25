@@ -42,7 +42,7 @@ urlpatterns = [
     path('interruption/<int:pk>', CloseInterruptionView.as_view(),
          name='interruption'),
     path('change_save', ChangeSaveView.as_view(),
-         name='change_save'),
+         name='change_save')
 ]
 
 handler404 = 'cms_app.views.handler404'

@@ -152,3 +152,6 @@ class Interruption(models.Model):
         else:
             return abs(
                 self.start_date - datetime.datetime.now(datetime.timezone.utc))
+
+class DBName(models.Model):
+    name = models.CharField(max_length=256)

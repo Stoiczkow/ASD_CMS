@@ -3,9 +3,9 @@ import datetime
 import glob
 import os
 import re
+import requests
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q
-from .models import Interruption, Machine, Realization
+from .models import Interruption, Machine, Realization, DBName
 
 
 @kronos.register('* * * * *')
@@ -13,7 +13,7 @@ def process_black_box():
     today = str(datetime.datetime.now().date()).replace('-', '')
     os.chdir("C:/Users/v-pawel.wyzykowski/Desktop")
     file_name = ''
-
+    db_name = DBName.objects.get(pk=1).name
     for i in glob.glob("*.txt"):
         if i.startswith(today):
             file_name = i
@@ -34,22 +34,22 @@ def process_black_box():
                         current_interruption_dt = datetime.datetime.strptime(
                             current_interruption, '%d.%m.%Y %H:%M:%S')
                     try:
-                        interruption = Interruption.objects.get(
+                        interruption = Interruption.objects.using(db_name).get(
                             start_date=current_interruption_dt,
                             machine=machines[col])
                     except ObjectDoesNotExist:
-                        interruption = Interruption.objects.create(
+                        interruption = Interruption.objects.using(db_name).create(
                             start_date=current_interruption_dt,
                             machine=machines[col])
                 else:
                     try:
-                        interruption = Interruption.objects.get(
+                        interruption = Interruption.objects.using(db_name).get(
                             start_date=datetime.datetime.strptime(
                                 current_interruption, '%d.%m.%Y %H:%M:%S'),
                             machine=machines[col])
                         interruption.stop_date = datetime.datetime.strptime(
                             str(line[0:19]), '%d.%m.%Y %H:%M:%S')
-                        interruption.save()
+                        interruption.save(using=db_name)
                     except (ObjectDoesNotExist, ValueError):
                         pass
 
@@ -58,11 +58,12 @@ def process_black_box():
 
 @kronos.register('* * * * *')
 def fill_interruptions():
-    interruptions = Interruption.objects.filter(realization=None)
+    db_name = DBName.objects.get(pk=1).name
+    interruptions = Interruption.objects.using(db_name).filter(realization=None)
     for interruption in interruptions:
         if interruption.stop_date:
             try:
-                realization = Realization.objects.get(
+                realization = Realization.objects.using(db_name).get(
                     order__machine=interruption.machine,
                     start_date__lte=interruption.stop_date,
                     stop_date__gte=interruption.start_date)
@@ -70,13 +71,13 @@ def fill_interruptions():
                 continue
 
             interruption.realization = realization
-            interruption.save()
+            interruption.save(using=db_name)
         else:
             try:
-                realization = Realization.objects.get(
+                realization = Realization.objects.using(db_name).get(
                     order__machine=interruption.machine,
                     is_active=True)
                 interruption.realization = realization
-                interruption.save()
+                interruption.save(using=db_name)
             except ObjectDoesNotExist:
                 continue
