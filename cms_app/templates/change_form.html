@@ -1,0 +1,29 @@
+{% extends 'index.html' %}
+{% load widget_tweaks %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+
+<div class="container text-center col-4">
+
+    <h4>Zmień sposób zapisywania danych</h4>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-check">
+      <label class="form-check-label" for="radio1">
+        <input type="radio" class="form-check-input" id="radio1" name="change" value="db" checked>Baza danych
+      </label>
+    </div>
+    <div class="form-check">
+      <label class="form-check-label" for="radio2">
+        <input type="radio" class="form-check-input" id="radio2" name="change" value="excel">Excel
+      </label>
+    </div>
+
+    <button type="submit" class="btn btn-dark">Zapisz</button>
+    </form>
+
+
+</div>
+
+{% endblock %}

@@ -54,13 +54,16 @@
         <li class="nav-item active">
             <a class="nav-link" href="{% url 'interruptions' %}">Przestoje</a>
         </li>
+        <li class="nav-item active">
+            <a class="nav-link" href="{% url 'change_save' %}">Zmień sposób zapisywania</a>
+        </li>
     </ul>
 
     <ul class="navbar-nav ml-auto">
         <li class="nav-item dropdown">
 
             <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
-                {{ user.first_name }} {{ user.last_name }}
+                {{ user.username }}
             </a>
             <div class="dropdown-menu">
                 <a class="dropdown-item" href="{% url 'logout' %}">Wyloguj się</a>

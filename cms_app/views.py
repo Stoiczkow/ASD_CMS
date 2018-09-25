@@ -13,6 +13,7 @@ from django.http import JsonResponse
 
 
 # Create your views here.
+SAVE_TO_DB = True
 
 
 def handler404(request):
@@ -163,5 +164,19 @@ class CloseInterruptionView(View):
             interruption.cause_3 = request.POST.get('cause_3')
             interruption.is_closed = True
             interruption.save()
-        ctx = {}
         return HttpResponseRedirect(reverse('interruptions'))
+
+
+class ChangeSaveView(View):
+    def get(self, request):
+        return render(request, 'change_form.html', ctx)
+
+    def post(self, request):
+        global SAVE_TO_DB
+        option = request.POST['change']
+        if option == 'db':
+            SAVE_TO_DB = True
+        elif option == 'excel':
+            SAVE_TO_DB = False
+
+        return HttpResponseRedirect(reverse('index'))
