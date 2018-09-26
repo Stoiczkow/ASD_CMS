@@ -17,7 +17,7 @@
         {% for interruption in interruptions%}
          <div class="container">
              <ul class="list-group list-group-flush">
-                 <li class="list-group-item">Przestój w czasie {{ interruption.start_date }} - {{ interruption.stop_date }} ( {{ interruption.interruption_time }} min ) ze zlecenia {{ interruption.realization.order.pk }} <a href="{% url 'interruption' pk=interruption.pk %}"><button type="submit" class="btn btn-dark">Zamknij przestój</button></a></li>
+                 <li class="list-group-item">Przestój w czasie {{ interruption.start_date }} - {% if interruption.stop_date %} {{ interruption.stop_date }} {% else %} Trwa {% endif %} ( {{ interruption.interruption_time }} min ) ze zlecenia {{ interruption.realization.order.pk }} <a href="{% url 'interruption' pk=interruption.pk %}"><button type="submit" class="btn btn-dark">Zamknij przestój</button></a></li>
              </ul>
          </div>
         {% endfor %}

@@ -39,8 +39,15 @@ class OrdersToTakeView(View):
     def get(self, request):
         db_name = DBName.objects.get(pk=1).name
         machines = Machine.objects.using(db_name).filter(is_taken=False)
+        orders = Order.objects.using(db_name).filter(is_finished=False)
+        orders_list = []
+        for machine in machines:
+            for order in orders:
+                if order.machine == machine:
+                    orders_list.append(order)
 
-        ctx = {'machines': machines}
+        ctx = {'machines': machines,
+               'orders': orders_list}
 
         return render(request, 'orders_tt.html', ctx)
 
@@ -56,8 +63,9 @@ class OrdersToTakeView(View):
                 if not order.start_date:
                     order.start_date = datetime.datetime.now()
                     order.save(using=db_name)
-                Realization.objects.using(db_name).create(order=order, user=request.user,
-                                           start_date=datetime.datetime.now())
+
+                Realization.objects.using(db_name).create(order=order, user=request.user, start_date=datetime.datetime.now())
+
                 return HttpResponseRedirect(reverse('index'))
 
         except ObjectDoesNotExist:
@@ -71,15 +79,11 @@ class CreateOrderView(View):
         return render(request, 'order_form.html', ctx)
 
     def post(self, request):
-        pass
-        # form = OrderForm(request.POST)
-        # print(request.POST)
-        # if form.is_valid():
-        #     db_name = DBName.objects.get(pk=1).name
-        #     Order.objects.using(db_name).create(order_id=int(request.POST['order_id']),
-        #                                         planned=int(request.POST['planned']),
-        #                                         machine=Machine.objects.using(db_name).get(pk=int(request.POST['machine'])))
-        #     return HttpResponseRedirect(reverse('index'))
+        db_name = DBName.objects.get(pk=1).name
+        Order.objects.using(db_name).create(order_id=int(request.POST['order_id']),
+                                            planned=int(request.POST['planned']),
+                                            machine=Machine.objects.using(db_name).get(pk=int(request.POST['machine'])))
+        return HttpResponseRedirect(reverse('index'))
 
 
 class CloseRealizationView(View):

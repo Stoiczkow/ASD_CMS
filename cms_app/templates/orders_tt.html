@@ -16,23 +16,19 @@
     <ul class="list-group">
         <li class="list-group-item list-group-item-dark">{{ machine.name }}</li>
      </ul>
-    {% if machine.orders %}
-
      <div class="container">
          <ul class="list-group list-group-flush">
 
-             {% for order in machine.orders %}
+             {% for order in orders %}
+             {% if order.machine == machine %}
              <li class="list-group-item">Zlecenie nr {{ order.order_id }} <form  style="display:inline" method="post">{% csrf_token %}<input style="display:none" type="number" name="order" value="{{ order.pk }}"><button type="submit" class="btn btn-dark">Zajmij zlecenie</button></form> </li>
+             {% endif %}
              {% endfor %}
 
 
          </ul>
      </div>
-    {% else %}
-    <ul class="list-group list-group-flush">
-    <li class="list-group-item">Brak zleceń</li>
-    </ul>
-    {% endif %}
+
 </div>
     {% endfor %}
 {% endblock %}
