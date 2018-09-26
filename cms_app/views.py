@@ -10,6 +10,7 @@ from .forms import RealizationForm, InterruptionForm
 import datetime
 from django.db import transaction
 from django.http import JsonResponse
+from django.contrib.auth.models import User
 
 # Create your views here.
 
@@ -64,7 +65,7 @@ class OrdersToTakeView(View):
                     order.start_date = datetime.datetime.now()
                     order.save(using=db_name)
 
-                Realization.objects.using(db_name).create(order=order, user=request.user, start_date=datetime.datetime.now())
+                Realization.objects.using(db_name).create(order=order, user=User.objects.using(db_name).get(pk=request.user.pk), start_date=datetime.datetime.now())
 
                 return HttpResponseRedirect(reverse('index'))
 
@@ -96,6 +97,7 @@ class CloseRealizationView(View):
         db_name = DBName.objects.get(pk=1).name
         realization = Realization.objects.using(db_name).get(pk=pk)
         form = RealizationForm(request.POST)
+
         if form.is_valid():
             realization.realization = float(request.POST['realization'])
             realization.waste = float(request.POST['waste'])
@@ -106,6 +108,10 @@ class CloseRealizationView(View):
             realization.order.save(using=db_name)
             realization.save(using=db_name)
 
+            if 'close_o' in request.POST:
+                order = Order.objects.using(DBName.objects.get(pk=1).name).get(pk=realization.order.pk)
+                order.is_finished = True
+                order.save(using=DBName.objects.get(pk=1).name)
             return HttpResponseRedirect(reverse('index'))
 
 
@@ -190,6 +196,9 @@ class ChangeSaveView(View):
 
     def post(self, request):
         try:
+            db_users = User.objects.using('default').all()
+            for user in db_users:
+                user.save(using='excel')
             db_name = DBName.objects.get(pk=1)
             db_name.name = request.POST['change']
             db_name.save()
