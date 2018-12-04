@@ -14,7 +14,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.conf.urls import url
+
 from cms_app.views import (MainPageView, OrdersToTakeView, CreateOrderView,
                            CloseRealizationView, CloseOrderListView,
                            CloseOrderDetailsView, CurrentInteruptionsView,
@@ -23,25 +24,25 @@ from cms_app.views import (MainPageView, OrdersToTakeView, CreateOrderView,
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('login/', auth_views.login, name='login'),
-    path('logout/', auth_views.logout, {'next_page': '/login/'},
+    url(r'^admin/', admin.site.urls),
+    url(r'^login/$', auth_views.login, name='login'),
+    url(r'^logout/$', auth_views.logout, {'next_page': '/login/'},
          name='logout'),
-    path('', MainPageView.as_view(), name='index'),
-    path('add_order', CreateOrderView.as_view(), name='add_order'),
-    path('take_order', OrdersToTakeView.as_view(), name='orders_tt'),
-    path('close_realization/<int:pk>', CloseRealizationView.as_view(),
+    url(r'^$', MainPageView.as_view(), name='index'),
+    url(r'^add_order$', CreateOrderView.as_view(), name='add_order'),
+    url(r'^take_order/$', OrdersToTakeView.as_view(), name='orders_tt'),
+    url(r'^close_realization/(?P<pk>(\d+))', CloseRealizationView.as_view(),
          name='close'),
-    path('close_order', CloseOrderListView.as_view(), name='close_order'),
-    path('close_order/<int:pk>', CloseOrderDetailsView.as_view(),
+    url(r'^close_order', CloseOrderListView.as_view(), name='close_order'),
+    url(r'^close_order/(?P<pk>(\d+))', CloseOrderDetailsView.as_view(),
          name='close_detail'),
-    path('current_interruptions/', CurrentInteruptionsView.as_view(),
+    url(r'^current_interruptions/', CurrentInteruptionsView.as_view(),
          name='current_inter'),
-    path('interruptions', InterruptionsListView.as_view(),
+    url(r'^interruptions', InterruptionsListView.as_view(),
          name='interruptions'),
-    path('interruption/<int:pk>', CloseInterruptionView.as_view(),
+    url(r'^interruption/(?P<pk>(\d+))', CloseInterruptionView.as_view(),
          name='interruption'),
-    path('change_save', ChangeSaveView.as_view(),
+    url(r'^change_save', ChangeSaveView.as_view(),
          name='change_save')
 ]
 
