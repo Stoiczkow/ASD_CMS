@@ -1,5 +1,5 @@
 from django.forms import ModelForm, RadioSelect
-from .models import Realization, Interruption
+from .models import Realization, Interruption, Order
 
 
 class RealizationForm(ModelForm):
@@ -17,3 +17,10 @@ class InterruptionForm(ModelForm):
             'cause_2': RadioSelect(),
             'cause_3': RadioSelect(),
         }
+
+
+class OrderForm(ModelForm):
+    class Meta:
+        model = Order
+        fields = ['order_id', 'machine', 'planned']
+

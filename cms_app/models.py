@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from django.db import models
+
+# Create your models here.
 from django.db import models
 from django.contrib.auth.models import User
 import datetime
@@ -9,18 +15,18 @@ ETYKIECIARKA_CAUSES = {"Awaria": ["Awaria"],
                        "Przerwy": ["Przerwa", "Oczekiwanie na DUR",
                                    "Oczekiwanie na KJ",
                                    "Przerwa w pakowaniu - brak presonelu DP",
-                                   "Przerwa w pakowaniu - brak materiału"],
-                       "Materiał lub Nadruk": ["Wymiana krążka z etykietami",
+                                   "Przerwa w pakowaniu - brak materialu"],
+                       "Material lub Nadruk": ["Wymiana krazka z etykietami",
                                                "Wymiana folii termotransferowej",
-                                               "Zerwanie taśmy",
-                                               "Jakość nadruku"],
-                       "Regulacja": ["Pozycjonowanie etykiety na wkładzie",
-                                     "Blokada transportera wejściowego"],
-                       "Blokada": ["Blokada transportera wejściowego",
-                                   "Blokada koła wejściowego",
-                                   "Blokada transportera wyjściowego",
-                                   "Blokada koła wyjściowego",
-                                   "Zgubiony produkt na wyjściu", "Foto stop"],
+                                               "Zerwanie tasmy",
+                                               "Jakosc nadruku"],
+                       "Regulacja": ["Pozycjonowanie etykiety na wkladzie",
+                                     "Blokada transportera wejsciowego"],
+                       "Blokada": ["Blokada transportera wejsciowego",
+                                   "Blokada kola wejsciowego",
+                                   "Blokada transportera wyjsciowego",
+                                   "Blokada kola wyjsciowego",
+                                   "Zgubiony produkt na wyjsciu", "Foto stop"],
                        "Restart": ["Restart"]}
 
 KARTONIARKA_CAUSES = {"Awaria": ["Awaria"],
@@ -29,32 +35,32 @@ KARTONIARKA_CAUSES = {"Awaria": ["Awaria"],
                       "Przerwy": ["Przerwa", "Oczekiwanie na DUR",
                                   "Oczekiwanie na KJ",
                                   "Przerwa w pakowaniu - brak presonelu DP",
-                                  "Przerwa w pakowaniu - brak materiału"],
-                      "Materiał": ["Wymiana foli PVC",
+                                  "Przerwa w pakowaniu - brak materialu"],
+                      "Material": ["Wymiana foli PVC",
                                    "Wymiana folii aluminiowej"],
-                      "Blistrzarka": ["Zablokowany przepływ produktu",
-                                      "Stacja formowania blistrów",
-                                      "Podawanie wkładów",
-                                      "Stacja obecności wkładów w blistrze",
+                      "Blistrzarka": ["Zablokowany przeplyw produktu",
+                                      "Stacja formowania blistrow",
+                                      "Podawanie wkladow",
+                                      "Stacja obecnosci wkladow w blistrze",
                                       "Stacja perforacji", "Stacja wycinania",
                                       "Czujniki kontrolne - blistrzarka",
-                                      "Regulacja modułu podawania blistrów",
+                                      "Regulacja modulu podawania blistrow",
                                       "Regulacja buforu magazynowego"],
                       "Ulotki/Kartoniki": ["Podawanie ulotek",
-                                           "Składarka ulotek",
-                                           "Synchronizacja ulotki względem "
+                                           "Skladarka ulotek",
+                                           "Synchronizacja ulotki wzgledem "
                                            "kartonika",
                                            "Podawanie, formowanie kartonika",
                                            "Zamykanie kartonika",
-                                           "cCzytnik kodu ulotki",
+                                           "Czytnik kodu ulotki",
                                            "Czytnik kodu kartonika",
                                            "Czujnik blistra w kartoniku",
                                            "Czujnik ulotki w kartoniku",
-                                           "Jakość nadruku",
-                                           "Zablokowany przepływ produktu",
+                                           "Jakosc nadruku",
+                                           "Zablokowany przeplyw produktu",
                                            "Blokada popychacza"],
-                      "Zaklejarka - Taśma": ["Zaklejarka - Taśma"],
-                      "Zaklejarka - Noże": ["Zaklejarka - Noże"]}
+                      "Zaklejarka - Tasma": ["Zaklejarka - Tasma"],
+                      "Zaklejarka - Noze": ["Zaklejarka - Noze"]}
 
 
 class Machine(models.Model):
@@ -62,7 +68,7 @@ class Machine(models.Model):
     setting = models.IntegerField(verbose_name='Nastawa maszyny')
     is_taken = models.BooleanField(default=False,
                                    verbose_name="Czy maszyna jest w tej "
-                                                "chwili zajęta?")
+                                                "chwili zajeta?")
 
     class Meta:
         verbose_name = 'Maszyna'
@@ -77,8 +83,8 @@ class Machine(models.Model):
 
 
 class Order(models.Model):
-    order_id = models.IntegerField(verbose_name="Numer zlecenia")
-    machine = models.ForeignKey(Machine, on_delete=True,
+    order_id = models.IntegerField(unique=True, verbose_name="Numer zlecenia")
+    machine = models.ForeignKey(Machine,
                                 verbose_name="Maszyna")
     start_date = models.DateTimeField(null=True, blank=True,
                                       verbose_name="Start zlecenia")
@@ -86,7 +92,7 @@ class Order(models.Model):
                                      verbose_name="Koniec zlecenia")
     planned = models.FloatField(verbose_name="Planowane wykonanie")
     is_finished = models.BooleanField(default=False,
-                                      verbose_name="Zlecenie zakończone")
+                                      verbose_name="Zlecenie zakonczone")
 
     class Meta:
         verbose_name = 'Zlecenie'
@@ -104,13 +110,13 @@ class Realization(models.Model):
     realization = models.FloatField(null=True, blank=True,
                                     verbose_name="Wykonano")
     waste = models.FloatField(null=True, blank=True,
-                              verbose_name="Ilość odpadów")
+                              verbose_name="Ilosc odpadow")
     is_active = models.BooleanField(default=True, blank=True,
                                     verbose_name="Czy realizacja "
                                                  "jest aktywna?")
-    user = models.ForeignKey(User, on_delete=True, null=True, blank=True,
+    user = models.ForeignKey(User, null=True, blank=True,
                              verbose_name="Osoba odpowiedzialna")
-    order = models.ForeignKey(Order, on_delete=True, verbose_name="Zlecenie")
+    order = models.ForeignKey(Order, verbose_name="Zlecenie")
 
     class Meta:
         verbose_name = 'Realizacja'
@@ -121,7 +127,7 @@ class Realization(models.Model):
 
 
 class Interruption(models.Model):
-    start_date = models.DateTimeField(verbose_name="Początek przestoju")
+    start_date = models.DateTimeField(verbose_name="Poczatek przestoju")
     stop_date = models.DateTimeField(null=True, blank=True,
                                      verbose_name="Koniec przestoju")
     cause_1 = models.CharField(max_length=256, null=True, blank=True,
@@ -130,29 +136,30 @@ class Interruption(models.Model):
                                verbose_name="Przyczyna przestoju 2")
     cause_3 = models.CharField(max_length=256, null=True, blank=True,
                                verbose_name="Przyczyna przestoju 3")
-    realization = models.ForeignKey(Realization, null=True, on_delete=True,
+    realization = models.ForeignKey(Realization, null=True,
                                     verbose_name="Realizacja")
     is_closed = models.BooleanField(default=False, blank=True,
-                                    verbose_name="Czy przestój "
-                                                 "jest zamknięty?")
+                                    verbose_name="Czy przestoj "
+                                                 "jest zamkniety?")
     was_alerted = models.BooleanField(default=False, blank=True,
-                                      verbose_name="Czy przestój "
-                                                   "jest zamknięty?")
-    machine = models.ForeignKey(Machine, on_delete=True,
+                                      verbose_name="Czy przestoj "
+                                                   "jest zamkniety?")
+    machine = models.ForeignKey(Machine,
                                 verbose_name="Maszyna")
 
     class Meta:
-        verbose_name = 'Przestój'
+        verbose_name = 'Przestoj'
         verbose_name_plural = "Przestoje"
 
-    @property
-    def interruption_time(self):
-        if self.stop_date:
-            return abs(self.start_date - self.stop_date).total_seconds()/60
-        else:
-            return abs(
-                self.start_date - datetime.datetime.now(datetime.timezone.utc)).total_seconds()/60
-
+    #@property
+    #def interruption_time(self):
+    #    if self.stop_date:
+    #        return abs(self.start_date - self.stop_date)
+    #    else:
+    #        return abs(
+    #            self.start_date - datetime.datetime.now(datetime.timezone.utc))
 
 class DBName(models.Model):
     name = models.CharField(max_length=256)
+
+
