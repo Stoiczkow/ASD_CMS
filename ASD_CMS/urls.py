@@ -23,6 +23,7 @@ from cms_app.views import (MainPageView, OrdersToTakeView, CreateOrderView,
                            ChangeSaveView)
 from django.contrib.auth import views as auth_views
 
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^login/$', auth_views.login, name='login'),

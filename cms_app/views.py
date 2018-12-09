@@ -10,6 +10,7 @@ from .forms import RealizationForm, InterruptionForm
 import datetime
 from django.db import transaction
 from django.http import JsonResponse
+from django.contrib.auth.models import User
 
 # Create your views here.
 
@@ -39,8 +40,15 @@ class OrdersToTakeView(View):
     def get(self, request):
         db_name = DBName.objects.get(pk=1).name
         machines = Machine.objects.using(db_name).filter(is_taken=False)
+        orders = Order.objects.using(db_name).filter(is_finished=False)
+        orders_list = []
+        for machine in machines:
+            for order in orders:
+                if order.machine == machine:
+                    orders_list.append(order)
 
-        ctx = {'machines': machines}
+        ctx = {'machines': machines,
+               'orders': orders_list}
 
         return render(request, 'orders_tt.html', ctx)
 
@@ -56,8 +64,9 @@ class OrdersToTakeView(View):
                 if not order.start_date:
                     order.start_date = datetime.datetime.now()
                     order.save(using=db_name)
-                Realization.objects.using(db_name).create(order=order, user=request.user,
-                                           start_date=datetime.datetime.now())
+
+                Realization.objects.using(db_name).create(order=order, user=User.objects.using(db_name).get(pk=request.user.pk), start_date=datetime.datetime.now())
+
                 return HttpResponseRedirect(reverse('index'))
 
         except ObjectDoesNotExist:
@@ -71,15 +80,11 @@ class CreateOrderView(View):
         return render(request, 'order_form.html', ctx)
 
     def post(self, request):
-        pass
-        # form = OrderForm(request.POST)
-        # print(request.POST)
-        # if form.is_valid():
-        #     db_name = DBName.objects.get(pk=1).name
-        #     Order.objects.using(db_name).create(order_id=int(request.POST['order_id']),
-        #                                         planned=int(request.POST['planned']),
-        #                                         machine=Machine.objects.using(db_name).get(pk=int(request.POST['machine'])))
-        #     return HttpResponseRedirect(reverse('index'))
+        db_name = DBName.objects.get(pk=1).name
+        Order.objects.using(db_name).create(order_id=int(request.POST['order_id']),
+                                            planned=int(request.POST['planned']),
+                                            machine=Machine.objects.using(db_name).get(pk=int(request.POST['machine'])))
+        return HttpResponseRedirect(reverse('index'))
 
 
 class CloseRealizationView(View):
@@ -92,6 +97,7 @@ class CloseRealizationView(View):
         db_name = DBName.objects.get(pk=1).name
         realization = Realization.objects.using(db_name).get(pk=pk)
         form = RealizationForm(request.POST)
+
         if form.is_valid():
             realization.realization = float(request.POST['realization'])
             realization.waste = float(request.POST['waste'])
@@ -102,6 +108,10 @@ class CloseRealizationView(View):
             realization.order.save(using=db_name)
             realization.save(using=db_name)
 
+            if 'close_o' in request.POST:
+                order = Order.objects.using(DBName.objects.get(pk=1).name).get(pk=realization.order.pk)
+                order.is_finished = True
+                order.save(using=DBName.objects.get(pk=1).name)
             return HttpResponseRedirect(reverse('index'))
 
 
@@ -186,6 +196,9 @@ class ChangeSaveView(View):
 
     def post(self, request):
         try:
+            db_users = User.objects.using('default').all()
+            for user in db_users:
+                user.save(using='excel')
             db_name = DBName.objects.get(pk=1)
             db_name.name = request.POST['change']
             db_name.save()

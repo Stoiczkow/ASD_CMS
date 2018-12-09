@@ -77,7 +77,7 @@ class Machine(models.Model):
 
 
 class Order(models.Model):
-    order_id = models.IntegerField(unique=True, verbose_name="Numer zlecenia")
+    order_id = models.IntegerField(verbose_name="Numer zlecenia")
     machine = models.ForeignKey(Machine, on_delete=True,
                                 verbose_name="Maszyna")
     start_date = models.DateTimeField(null=True, blank=True,
@@ -148,10 +148,11 @@ class Interruption(models.Model):
     @property
     def interruption_time(self):
         if self.stop_date:
-            return abs(self.start_date - self.stop_date)
+            return abs(self.start_date - self.stop_date).total_seconds()/60
         else:
             return abs(
-                self.start_date - datetime.datetime.now(datetime.timezone.utc))
+                self.start_date - datetime.datetime.now(datetime.timezone.utc)).total_seconds()/60
+
 
 class DBName(models.Model):
     name = models.CharField(max_length=256)
