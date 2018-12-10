@@ -124,6 +124,15 @@ class Realization(models.Model):
     is_cast = models.BooleanField(default=False,
                                   verbose_name="Czy realizacja została obsadzona?")
 
+    @property
+    def set_is_cast(self):
+        now = datetime.datetime.now()
+        try:
+            if self.stop_date + datetime.timedelta(days=2) < now:
+                self.is_cast = True
+        except:
+            pass
+        
     class Meta:
         verbose_name = 'Realizacja'
         verbose_name_plural = "Realizacje"
