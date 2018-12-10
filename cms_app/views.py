@@ -81,7 +81,7 @@ class EditOrderView(View):
         realization = Realization.objects.using(db_name).get(pk=pk)
         machine = realization.order.machine.name
         employees = Employee.objects.using(db_name).filter(is_busy=False)
-        avalible_realizations = EmployeeRealization.objects.using(db_name).filter(realization=realization).filter(realization__is_cast=False)
+        avalible_realizations = EmployeeRealization.objects.using(db_name).filter(realization=realization)
         if machine == 'Kartoniarka':
             positions = KARTONIARKA_POSITIONS
         elif machine == 'Etykieciarka':
@@ -93,23 +93,35 @@ class EditOrderView(View):
     def post(self, request, pk):
         db_name = DBName.objects.get(pk=1).name
         positions = request.POST
+        start_date = request.POST['start']
+        stop_date = request.POST['stop']
+        exclude = ['start', 'stop', 'csrfmiddlewaretoken']
         for key in positions:
-            if key != 'csrfmiddlewaretoken' and int(positions[key]) != -1:
+            if (key not in exclude) and int(positions[key]) != -1:
                 employee = Employee.objects.using(db_name).get(pk=int(positions[key]))
                 EmployeeRealization.objects.create(employee=employee,
                                                    realization=Realization.objects.using(db_name).get(pk=pk),
-                                                   start_date=datetime.datetime.now(),
+                                                   start_date=start_date,
+                                                   stop_date=stop_date,
                                                    position=key)
-                employee.is_busy = True
-                employee.save()
+
 
         return HttpResponseRedirect(reverse('index'))
+
+
+class ClosePositions(View):
+    def get(self, request, pk):
+        db_name = DBName.objects.get(pk=1).name
+        realization = Realization.objects.using(db_name).get(pk=pk)
+        realization.is_cast = True
+        realization.save()
+        return HttpResponseRedirect(reverse('list_positions'))
 
 
 class ListRealizationsPositions(View):
     def get(self, request):
         db_name = DBName.objects.get(pk=1).name
-        realizations = Realization.objects.using(db_name).filter(user=request.user)
+        realizations = Realization.objects.using(db_name).filter(user=request.user, is_cast=False)
         ctx = {'realizations': realizations}
         return render(request, 'list_positions.html', ctx)
 

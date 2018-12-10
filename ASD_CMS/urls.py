@@ -20,7 +20,8 @@ from cms_app.views import (MainPageView, OrdersToTakeView, CreateOrderView,
                            CloseRealizationView, CloseOrderListView,
                            CloseOrderDetailsView, CurrentInteruptionsView,
                            InterruptionsListView, CloseInterruptionView,
-                           ChangeSaveView, EditOrderView, ListRealizationsPositions)
+                           ChangeSaveView, EditOrderView,
+                           ListRealizationsPositions, ClosePositions)
 from django.contrib.auth import views as auth_views
 
 
@@ -48,8 +49,9 @@ urlpatterns = [
     url(r'^edit_realization/(?P<pk>(\d+))', EditOrderView.as_view(),
          name='edit_realization'),
     url(r'^list_positions/', ListRealizationsPositions.as_view(),
-        name='list_positions'
-        )
+        name='list_positions'),
+    url(r'^close_positions/(?P<pk>(\d+))', ClosePositions.as_view(),
+        name='close_positions')
 ]
 
 handler404 = 'cms_app.views.handler404'

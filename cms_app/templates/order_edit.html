@@ -29,6 +29,11 @@
                 {% endfor %}
             </ul>
         </div>
+
+              Początek pracy:
+              <input type="datetime-local" class="form-control" name="start" placeholder="Start pracy">
+              Koniec pracy:
+              <input type="datetime-local" class="form-control" name="stop" placeholder="Koniec pracy">
               <h4>Stanowiska</h4>
               {% for position in positions %}
                   <div class="form-group">
@@ -43,7 +48,7 @@
                   </div>
               {% endfor %}
 
-        <button type="submit" class="btn btn-dark">Zapisz</button>
+        <button type="submit" class="btn btn-dark">Dodaj obsadę</button>
     </form>
 
 </div>

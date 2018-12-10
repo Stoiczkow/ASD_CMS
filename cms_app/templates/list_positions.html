@@ -17,13 +17,13 @@
         {% for realization in realizations %}
          <div class="container">
              <ul class="list-group list-group-flush">
-                 <li class="list-group-item">Realizacja nr {{ realization.pk }} do zlecenia {{ realization.order.order_id }}<a href="{% url 'edit_realization' pk=realization.pk %}"><button type="submit" class="btn btn-dark">Edytuj obsadę</button></a></li>
+                 <li class="list-group-item">Realizacja nr {{ realization.pk }} do zlecenia {{ realization.order.order_id }}<a href="{% url 'edit_realization' pk=realization.pk %}"><button type="submit" class="btn btn-dark">Edytuj obsadę</button></a><a href="{% url 'close_positions' pk=realization.pk %}"><button type="submit" class="btn btn-danger">Zatwierdź obsadę</button></a></li>
              </ul>
          </div>
         {% endfor %}
     {% else %}
     <ul class="list-group list-group-flush">
-    <li class="list-group-item">Brak realizacji</li>
+    <li class="list-group-item">Brak obsad do edycji</li>
     </ul>
     {% endif %}
 </div>
