@@ -81,14 +81,13 @@ class EditOrderView(View):
         realization = Realization.objects.using(db_name).get(pk=pk)
         machine = realization.order.machine.name
         employees = Employee.objects.using(db_name).filter(is_busy=False)
-        current_cast = EmployeeRealization.objects.using(db_name).filter(realization=realization)\
-            .filter(stop_date__isnull=True)
+        avalible_realizations = EmployeeRealization.objects.using(db_name).filter(realization=realization).filter(realization__is_cast=False)
         if machine == 'Kartoniarka':
             positions = KARTONIARKA_POSITIONS
         elif machine == 'Etykieciarka':
             positions = ETYKIECIARKA_POSITIONS
 
-        ctx = {'realization': realization, 'positions': positions, 'employees': employees, 'current_cast': current_cast}
+        ctx = {'realization': realization, 'positions': positions, 'employees': employees, 'avalible_realizations': avalible_realizations}
         return render(request, 'order_edit.html', ctx)
 
     def post(self, request, pk):
@@ -105,6 +104,14 @@ class EditOrderView(View):
                 employee.save()
 
         return HttpResponseRedirect(reverse('index'))
+
+
+class ListRealizationsPositions(View):
+    def get(self, request):
+        db_name = DBName.objects.get(pk=1).name
+        realizations = Realization.objects.using(db_name).filter(user=request.user)
+        ctx = {'realizations': realizations}
+        return render(request, 'list_positions.html', ctx)
 
 
 class CreateOrderView(View):

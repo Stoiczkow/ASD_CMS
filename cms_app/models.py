@@ -121,6 +121,8 @@ class Realization(models.Model):
     user = models.ForeignKey(User, null=True, blank=True,
                              verbose_name="Osoba odpowiedzialna")
     order = models.ForeignKey(Order, verbose_name="Zlecenie")
+    is_cast = models.BooleanField(default=False,
+                                  verbose_name="Czy realizacja została obsadzona?")
 
     class Meta:
         verbose_name = 'Realizacja'
@@ -187,3 +189,7 @@ class EmployeeRealization(models.Model):
     start_date = models.DateTimeField(verbose_name="Początek pracy")
     stop_date = models.DateTimeField(null=True, blank=True, verbose_name="Koniec pracy")
     position = models.CharField(max_length=256)
+
+    class Meta:
+        verbose_name = 'Obsada'
+        verbose_name_plural = "Obsady"
