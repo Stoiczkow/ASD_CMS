@@ -110,7 +110,7 @@
   <ul class="list-group list-group-flush">
       {% if realizations %}
       {% for realization in realizations %}
-      <li class="list-group-item">Zlecenie nr {{ realization.order.order_id }}, na maszynie {{ realization.order.machine }} <a href="{% url 'edit_realization' pk=realization.pk %}"><button type="button" class="btn btn-dark">Edytuj obsadę</button></a> <a href="{% url 'close' pk=realization.pk %}"><button type="button" class="btn btn-danger">Zamknij realizację</button></a></li>
+      <li class="list-group-item">Zlecenie nr {{ realization.order.order_id }}, na maszynie {{ realization.order.machine }} {% if not realization.is_cast %}<a href="{% url 'edit_realization' pk=realization.pk %}"><button type="button" class="btn btn-dark">Edytuj obsadę</button></a>{% endif %} <a href="{% url 'close' pk=realization.pk %}"><button type="button" class="btn btn-danger">Zamknij realizację</button></a></li>
       {% endfor %}
       {% else %}
             <li class="list-group-item">Brak aktywnych realizacji</li>
