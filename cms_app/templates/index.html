@@ -17,9 +17,10 @@
     <!-- Latest compiled JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
     <script src="{% static 'alert_interruptions.js' %}"></script>
-
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    {%  block custom_js %}
+    {% endblock %}
 </head>
 <body>
 
@@ -106,7 +107,7 @@
   <ul class="list-group list-group-flush">
       {% if realizations %}
       {% for realization in realizations %}
-      <li class="list-group-item">Zlecenie nr {{ realization.order.order_id }}, na maszynie {{ realization.order.machine }} <a href="{% url 'close' pk=realization.pk %}"><button type="button" class="btn btn-dark">Zamknij realizację</button></a></li>
+      <li class="list-group-item">Zlecenie nr {{ realization.order.order_id }}, na maszynie {{ realization.order.machine }} <a href="{% url 'edit_realization' pk=realization.pk %}"><button type="button" class="btn btn-dark">Edytuj realizację</button></a> <a href="{% url 'close' pk=realization.pk %}"><button type="button" class="btn btn-danger">Zamknij realizację</button></a></li>
       {% endfor %}
       {% else %}
             <li class="list-group-item">Brak aktywnych realizacji</li>

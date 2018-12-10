@@ -9,6 +9,10 @@ from django.contrib.auth.models import User
 import datetime
 
 # Create your models here.
+ETYKIECIARKA_POSITIONS = ["Operator główny", "Pomocnik operatora"]
+KARTONIARKA_POSITIONS = ["Blistrzarka", "Kartoniarka", "Blistrzarka zasilanie", "Pakowanie ręczne 1",
+                         "Pakowanie ręczne 2", "Zaklejanie kartonów"]
+
 ETYKIECIARKA_CAUSES = {"Awaria": ["Awaria"],
                        "Brak Zlecenia": ["Brak zlecenia"],
                        "Inne": ["Inne"],
@@ -159,7 +163,27 @@ class Interruption(models.Model):
     #        return abs(
     #            self.start_date - datetime.datetime.now(datetime.timezone.utc))
 
+
 class DBName(models.Model):
     name = models.CharField(max_length=256)
 
 
+class Employee(models.Model):
+    first_name = models.CharField(max_length=256, verbose_name="Imię")
+    last_name = models.CharField(max_length=256, verbose_name="Nazwisko")
+    is_busy = models.BooleanField(default=False, verbose_name="Czy pracownik jest zajęty?")
+
+    class Meta:
+        verbose_name = 'Pracownik'
+        verbose_name_plural = "Pracownicy"
+
+    def __str__(self):
+        return "{} {}".format(self.first_name, self.last_name)
+
+
+class EmployeeRealization(models.Model):
+    employee = models.ForeignKey(Employee, verbose_name="Pracownik")
+    realization = models.ForeignKey(Realization, verbose_name="Realizacja")
+    start_date = models.DateTimeField(verbose_name="Początek pracy")
+    stop_date = models.DateTimeField(null=True, blank=True, verbose_name="Koniec pracy")
+    position = models.CharField(max_length=256)

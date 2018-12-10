@@ -10,8 +10,8 @@ from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.views import View
 from django.views.generic.edit import CreateView
-from .models import Order, Machine, Realization, Interruption, \
-    ETYKIECIARKA_CAUSES, KARTONIARKA_CAUSES, DBName
+from .models import (Order, Machine, Realization, Interruption, ETYKIECIARKA_CAUSES, KARTONIARKA_CAUSES, DBName,
+                     ETYKIECIARKA_POSITIONS, KARTONIARKA_POSITIONS, Employee, EmployeeRealization)
 from .forms import RealizationForm, InterruptionForm, OrderForm
 import datetime
 from django.db import transaction
@@ -47,8 +47,8 @@ class OrdersToTakeView(View):
     def get(self, request):
         db_name = DBName.objects.get(pk=1).name
         machines = Machine.objects.using(db_name).filter(is_taken=False)
-
-        ctx = {'machines': machines}
+        orders = Order.objects.using(db_name)
+        ctx = {'machines': machines, 'orders': orders}
 
         return render(request, 'orders_tt.html', ctx)
 
@@ -65,14 +65,46 @@ class OrdersToTakeView(View):
                 if not order.start_date:
                     order.start_date = datetime.datetime.now()
                     order.save(using=db_name)
-                Realization.objects.using(db_name).create(order=order,
+                new_realization = Realization.objects.using(db_name).create(order=order,
                                                           user=request.user,
                                                           start_date=datetime.datetime.now())
-                return HttpResponseRedirect(reverse('index'))
+                return HttpResponseRedirect(reverse('edit_realization', kwargs={'pk': new_realization.pk}))
 
         except ObjectDoesNotExist:
             ctx = {'error': 'Zlecenie zostalo juz zajete.'}
             return render(request, 'orders_tt.html', ctx)
+
+
+class EditOrderView(View):
+    def get(self, request, pk):
+        db_name = DBName.objects.get(pk=1).name
+        realization = Realization.objects.using(db_name).get(pk=pk)
+        machine = realization.order.machine.name
+        employees = Employee.objects.using(db_name).filter(is_busy=False)
+        current_cast = EmployeeRealization.objects.using(db_name).filter(realization=realization)\
+            .filter(stop_date__isnull=True)
+        if machine == 'Kartoniarka':
+            positions = KARTONIARKA_POSITIONS
+        elif machine == 'Etykieciarka':
+            positions = ETYKIECIARKA_POSITIONS
+
+        ctx = {'realization': realization, 'positions': positions, 'employees': employees, 'current_cast': current_cast}
+        return render(request, 'order_edit.html', ctx)
+
+    def post(self, request, pk):
+        db_name = DBName.objects.get(pk=1).name
+        positions = request.POST
+        for key in positions:
+            if key != 'csrfmiddlewaretoken' and int(positions[key]) != -1:
+                employee = Employee.objects.using(db_name).get(pk=int(positions[key]))
+                EmployeeRealization.objects.create(employee=employee,
+                                                   realization=Realization.objects.using(db_name).get(pk=pk),
+                                                   start_date=datetime.datetime.now(),
+                                                   position=key)
+                employee.is_busy = True
+                employee.save()
+
+        return HttpResponseRedirect(reverse('index'))
 
 
 class CreateOrderView(View):

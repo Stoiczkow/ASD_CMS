@@ -15,7 +15,7 @@
               <select class="form-control" id="sel1" name="machine" placeholder="Wybierz maszynę">
                   <option>----</option>
                   {% for machine in machines %}
-                    <option value="{{ machine.id }}">{{ machine.name }}</option>
+                    <option value="{{ machine.name }}">{{ machine.name }}</option>
                   {% endfor %}
               </select>
         </div>
