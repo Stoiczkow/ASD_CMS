@@ -1,0 +1,44 @@
+{% extends 'index.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block title %}Login{% endblock %}
+
+{%  block custom_js %}
+    <script src="{% static 'select_emps.js' %}"></script>
+{%  endblock %}
+
+{% block content %}
+
+<div class="container text-center col-4">
+    <h4>Edycja realizacji</h4>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <h4>Zlecenie nr</h4>
+            <input type="number" class="form-control" value="{{ realization.order.order_id }}" disabled>
+        </div>
+    <div class="form-group">
+        <h4>Maszyna</h4>
+            <input class="form-control" value="{{ realization.order.machine.name }}" disabled>
+        </div>
+
+              <h4>Stanowiska</h4>
+              {% for position in positions %}
+                  <div class="form-group">
+                  <h6>{{ position }}</h6>
+                  <select class="form-control slc" name="{{ position }}" placeholder="Wybierz pracownika">
+                  <option value="-1">----</option>
+                      {% for employee in employees %}
+                          <option value="{{ employee.pk }}">{{ employee.first_name }} {{ employee.last_name }}</option>
+                      {% endfor %}
+
+                  </select>
+                  </div>
+              {% endfor %}
+
+        <button type="submit" class="btn btn-dark">Zapisz</button>
+    </form>
+
+</div>
+
+{% endblock %}
