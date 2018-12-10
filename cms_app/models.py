@@ -132,7 +132,7 @@ class Realization(models.Model):
                 self.is_cast = True
         except:
             pass
-        
+
     class Meta:
         verbose_name = 'Realizacja'
         verbose_name_plural = "Realizacje"
