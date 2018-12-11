@@ -3,13 +3,15 @@
 {% load widget_tweaks %}
 {% block title %}Login{% endblock %}
 
-{%  block custom_js %}
-    <script src="{% static 'select_emps.js' %}"></script>
-{%  endblock %}
-
 {% block content %}
 
 <div class="container text-center col-4">
+    {% if error %}
+    <div class="alert alert-danger">
+        <strong>Błąd!</strong> {{ error }}
+    </div>
+    {% endif %}
+
     <h4>Edycja obsady</h4>
     <form method="post">
         {% csrf_token %}
@@ -31,7 +33,7 @@
         </div>
 
               Początek pracy:
-              <input type="datetime-local" class="form-control" name="start" placeholder="Start pracy">
+              <input type="datetime-local" class="form-control" name="start" placeholder="Start pracy" required>
               Koniec pracy:
               <input type="datetime-local" class="form-control" name="stop" placeholder="Koniec pracy">
               <h4>Stanowiska</h4>

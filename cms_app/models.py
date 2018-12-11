@@ -157,8 +157,7 @@ class Interruption(models.Model):
                                     verbose_name="Czy przestoj "
                                                  "jest zamkniety?")
     was_alerted = models.BooleanField(default=False, blank=True,
-                                      verbose_name="Czy przestoj "
-                                                   "jest zamkniety?")
+                                      verbose_name="Czy był alert?")
     machine = models.ForeignKey(Machine,
                                 verbose_name="Maszyna")
 
@@ -166,13 +165,13 @@ class Interruption(models.Model):
         verbose_name = 'Przestoj'
         verbose_name_plural = "Przestoje"
 
-    #@property
-    #def interruption_time(self):
-    #    if self.stop_date:
-    #        return abs(self.start_date - self.stop_date)
-    #    else:
-    #        return abs(
-    #            self.start_date - datetime.datetime.now(datetime.timezone.utc))
+    @property
+    def interruption_time(self):
+       if self.stop_date:
+           return abs(self.start_date - self.stop_date)
+       else:
+           return abs(
+               self.start_date - datetime.datetime.now(datetime.timezone.utc))
 
 
 class DBName(models.Model):

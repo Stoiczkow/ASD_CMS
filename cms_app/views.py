@@ -18,7 +18,7 @@ from .forms import RealizationForm, InterruptionForm, OrderForm
 import datetime
 from django.db import transaction
 from django.http import JsonResponse
-
+from django.core.exceptions import ValidationError
 
 # Create your views here.
 
@@ -49,7 +49,7 @@ class OrdersToTakeView(View):
     def get(self, request):
         db_name = DBName.objects.get(pk=1).name
         machines = Machine.objects.using(db_name).filter(is_taken=False)
-        orders = Order.objects.using(db_name)
+        orders = Order.objects.using(db_name).filter(is_finished=False)
         ctx = {'machines': machines, 'orders': orders}
 
         return render(request, 'orders_tt.html', ctx)
@@ -80,7 +80,7 @@ class OrdersToTakeView(View):
             return render(request, 'orders_tt.html', ctx)
 
 
-class EditOrderView(View):
+class EditCastView(View):
     def get(self, request, pk):
         db_name = DBName.objects.get(pk=1).name
         realization = Realization.objects.using(db_name).get(pk=pk)
@@ -93,29 +93,65 @@ class EditOrderView(View):
         elif machine == 'Etykieciarka':
             positions = ETYKIECIARKA_POSITIONS
 
+        try:
+            error = request.session['error']
+            request.session['error'] = ''
+        except:
+            error = ''
         ctx = {'realization': realization, 'positions': positions,
                'employees': employees,
-               'avalible_realizations': avalible_realizations}
+               'avalible_realizations': avalible_realizations,
+               'error': error}
         return render(request, 'order_edit.html', ctx)
 
     def post(self, request, pk):
         db_name = DBName.objects.get(pk=1).name
         positions = request.POST
+        valid_duplicates = [x[0] for x in list(dict(request.POST).values()) if x != ['-1']]
+
+        if len(valid_duplicates) > len(set(valid_duplicates)):
+            request.session['error'] = 'Jedna osoba nie może pracować na dwóch różnych maszynach w tym samym czasie!'
+            return HttpResponseRedirect(reverse('edit_realization',kwargs={'pk': pk}))
+
         start_date = request.POST['start']
-        stop_date = request.POST['stop']
+
+        if request.POST['stop']:
+            stop_date = request.POST['stop']
+        else:
+            stop_date = datetime.datetime(9999, 12, 31, 0, 0)
+
+        if stop_date >= stop_date:
+            request.session['error'] = 'Czas początku pracy jest późniejszy niż czas końca pracy!'
+            return HttpResponseRedirect(reverse('edit_realization', kwargs={'pk': pk}))
+
         exclude = ['start', 'stop', 'csrfmiddlewaretoken']
         for key in positions:
             if (key not in exclude) and int(positions[key]) != -1:
                 employee = Employee.objects.using(db_name).get(
                     pk=int(positions[key]))
-                EmployeeRealization.objects.using(db_name).create(
+                print('STOP  --', stop_date)
+                possible_cast = EmployeeRealization.objects.using(db_name).filter(employee=employee,
+                                                                                  stop_date__gt=start_date,
+                                                                                  start_date__lt=stop_date)
+                if len(possible_cast):
+                    request.session[
+                        'error'] = 'Pracownik {} pracuje już na innym stanowisku w podanym przedziale czasowym'.format(employee)
+                    return HttpResponseRedirect(reverse('edit_realization', kwargs={'pk': pk}))
+
+                #save emp-real to db
+                employee_realization = EmployeeRealization.objects.using(db_name).create(
                     employee=employee,
                     realization=Realization.objects.using(db_name).get(pk=pk),
                     start_date=start_date,
-                    stop_date=stop_date,
                     position=key)
 
-        return HttpResponseRedirect(reverse('index'))
+                try:
+                    stop_date = request.POST['stop']
+                    employee_realization.stop_date = stop_date
+                    employee_realization.save(using=DBName.objects.get(pk=1).name)
+                except ValidationError:
+                    pass
+        return HttpResponseRedirect(reverse('edit_realization',kwargs={'pk': pk}))
 
 
 class ClosePositions(View):
@@ -123,7 +159,7 @@ class ClosePositions(View):
         db_name = DBName.objects.get(pk=1).name
         realization = Realization.objects.using(db_name).get(pk=pk)
         realization.is_cast = True
-        realization.save()
+        realization.save(using=DBName.objects.get(pk=1).name)
         return HttpResponseRedirect(reverse('list_positions'))
 
 
@@ -193,6 +229,7 @@ class CloseOrderDetailsView(View):
     def post(self, request, pk):
         order = Order.objects.using(DBName.objects.get(pk=1).name).get(
             pk=int(request.POST['order']))
+        #int(request.POST['order'])
         order.is_finished = True
         order.save(using=DBName.objects.get(pk=1).name)
 
