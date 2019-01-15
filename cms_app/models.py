@@ -13,7 +13,7 @@ ETYKIETOWANIE_POSITIONS = ["Operator główny", "Pomocnik operatora"]
 KARTONIARKA_POSITIONS = ["Blistrzarka", "Kartoniarka", "Blistrzarka zasilanie", "Pakowanie ręczne 1",
                          "Pakowanie ręczne 2", "Zaklejanie kartonów"]
 
-DOZOWANIE_POSITIONS = ["Box 1", "Box 2", "Odbi�r kaset 1", "Odbi�r kaset 2"]
+DOZOWANIE_POSITIONS = ["Box 1", "Box 2", "Odbior kaset 1", "Odbior kaset 2"]
 
 ETYKIETOWANIE_CAUSES = {"Awaria": ["Awaria"],
                        "Brak Zlecenia": ["Brak zlecenia"],

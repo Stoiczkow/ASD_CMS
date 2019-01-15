@@ -118,10 +118,10 @@ class EditCastView(View):
         start_date = request.POST['start']
         start_date = datetime.datetime.strptime(start_date, '%Y-%m-%dT%H:%M')
         if request.POST['stop']:
-            stop_date = request.POST['stop']
+            stop_date = datetime.datetime.strptime(request.POST['stop'], '%Y-%m-%dT%H:%M')
         else:
             stop_date = datetime.datetime(9999, 12, 31, 0, 0)
-        print(start_date)
+            
         if start_date >= stop_date:
             request.session['error'] = 'Czas początku pracy jest późniejszy niż czas końca pracy!'
             return HttpResponseRedirect(reverse('edit_realization', kwargs={'pk': pk}))
