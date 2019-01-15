@@ -9,11 +9,13 @@ from django.contrib.auth.models import User
 import datetime
 
 # Create your models here.
-ETYKIECIARKA_POSITIONS = ["Operator główny", "Pomocnik operatora"]
+ETYKIETOWANIE_POSITIONS = ["Operator główny", "Pomocnik operatora"]
 KARTONIARKA_POSITIONS = ["Blistrzarka", "Kartoniarka", "Blistrzarka zasilanie", "Pakowanie ręczne 1",
                          "Pakowanie ręczne 2", "Zaklejanie kartonów"]
 
-ETYKIECIARKA_CAUSES = {"Awaria": ["Awaria"],
+DOZOWANIE_POSITIONS = ["Box 1", "Box 2", "Odbi�r kaset 1", "Odbi�r kaset 2"]
+
+ETYKIETOWANIE_CAUSES = {"Awaria": ["Awaria"],
                        "Brak Zlecenia": ["Brak zlecenia"],
                        "Inne": ["Inne"],
                        "Przerwy": ["Przerwa", "Oczekiwanie na DUR",
@@ -24,14 +26,14 @@ ETYKIECIARKA_CAUSES = {"Awaria": ["Awaria"],
                                                "Wymiana folii termotransferowej",
                                                "Zerwanie tasmy",
                                                "Jakosc nadruku"],
-                       "Regulacja": ["Pozycjonowanie etykiety na wkladzie",
+                        "Regulacja": ["Pozycjonowanie etykiety na wkladzie",
                                      "Blokada transportera wejsciowego"],
-                       "Blokada": ["Blokada transportera wejsciowego",
+                        "Blokada": ["Blokada transportera wejsciowego",
                                    "Blokada kola wejsciowego",
                                    "Blokada transportera wyjsciowego",
                                    "Blokada kola wyjsciowego",
                                    "Zgubiony produkt na wyjsciu", "Foto stop"],
-                       "Restart": ["Restart"]}
+                        "Restart": ["Restart"]}
 
 KARTONIARKA_CAUSES = {"Awaria": ["Awaria"],
                       "Brak Zlecenia": ["Brak zlecenia"],
@@ -65,6 +67,21 @@ KARTONIARKA_CAUSES = {"Awaria": ["Awaria"],
                                            "Blokada popychacza"],
                       "Zaklejarka - Tasma": ["Zaklejarka - Tasma"],
                       "Zaklejarka - Noze": ["Zaklejarka - Noze"]}
+
+DOZOWANIE_CAUSES = {"Inne": ["Montaż i parametryzacja maszyny dozującej", "IPC startowy",
+                             "Alarm cząstek", "Inne"],
+                    "Blokada": ["Przestój myjki wkładów", "Przestój tunelu", "Zablokowany przepływ wkładów",
+                                "Zablokowany przepływ tłoczków", "Zablokowany przepływ kulek",
+                                "Zablokowny przepływ kapsli", "Wysprzęglenie układu transportera wkładów",
+                                "Zablokowany odbiór wkładów"],
+                    "Regulacja": ["Regulacja układu podawania wkładów",
+                                  "Regulacja stacji podawania i pozycjonowania tłoczków",
+                                  "Regulacja stacji podawania kulek", "Regulacja stacji dozowania",
+                                  "Regulacja stacji podawania i pozycjonowania kapsli",
+                                  "Regulacja układu wyjściowego i transportu", "Regulacja czujników kontrolnych"],
+                    "Przerwa": ["Przerwa", "Oczekiwanie na KJ", "Oczekiwanie na DUR",
+                                "Przerwa w dozowaniu - brak presonelu DP", "Przerwa w dozowaniu - brak materiałów", ],
+                    "Awaria": ["Awaria"]}
 
 
 class Machine(models.Model):

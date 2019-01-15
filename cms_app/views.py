@@ -11,9 +11,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views import View
 from django.views.generic.edit import CreateView
 from .models import (Order, Machine, Realization, Interruption,
-                     ETYKIECIARKA_CAUSES, KARTONIARKA_CAUSES, DBName,
-                     ETYKIECIARKA_POSITIONS, KARTONIARKA_POSITIONS, Employee,
-                     EmployeeRealization)
+                     ETYKIETOWANIE_CAUSES, KARTONIARKA_CAUSES, DBName,
+                     ETYKIETOWANIE_POSITIONS, KARTONIARKA_POSITIONS, Employee,
+                     EmployeeRealization, DOZOWANIE_CAUSES, DOZOWANIE_POSITIONS)
 from .forms import RealizationForm, InterruptionForm, OrderForm
 import datetime
 from django.db import transaction
@@ -88,10 +88,12 @@ class EditCastView(View):
         employees = Employee.objects.using(db_name).filter(is_busy=False)
         avalible_realizations = EmployeeRealization.objects.using(
             db_name).filter(realization=realization)
-        if machine == 'Kartoniarka':
+        if machine.startswith('Kartoniarka'):
             positions = KARTONIARKA_POSITIONS
-        elif machine == 'Etykieciarka':
-            positions = ETYKIECIARKA_POSITIONS
+        elif machine.startswith('Etykietowanie'):
+            positions = ETYKIETOWANIE_POSITIONS
+        elif machine.startswith('Dozowanie'):
+            positions = DOZOWANIE_POSITIONS
 
         try:
             error = request.session['error']
@@ -114,13 +116,13 @@ class EditCastView(View):
             return HttpResponseRedirect(reverse('edit_realization',kwargs={'pk': pk}))
 
         start_date = request.POST['start']
-
+        start_date = datetime.datetime.strptime(start_date, '%Y-%m-%dT%H:%M')
         if request.POST['stop']:
             stop_date = request.POST['stop']
         else:
             stop_date = datetime.datetime(9999, 12, 31, 0, 0)
-
-        if stop_date >= stop_date:
+        print(start_date)
+        if start_date >= stop_date:
             request.session['error'] = 'Czas początku pracy jest późniejszy niż czas końca pracy!'
             return HttpResponseRedirect(reverse('edit_realization', kwargs={'pk': pk}))
 
@@ -271,10 +273,12 @@ class CloseInterruptionView(View):
     def get(self, request, pk):
         interruption = Interruption.objects.using(
             DBName.objects.get(pk=1).name).get(pk=pk)
-        if interruption.machine.name == 'Etykieciarka':
-            causes = ETYKIECIARKA_CAUSES
-        elif interruption.machine.name == 'Kartoniarka':
+        if interruption.machine.name.startswith('Etykietowanie'):
+            causes = ETYKIETOWANIE_CAUSES
+        elif interruption.machine.name.startswith('Kartoniarka'):
             causes = KARTONIARKA_CAUSES
+        elif interruption.machine.name.startswith('Dozowanie'):
+            causes = DOZOWANIE_CAUSES
 
         ctx = {'interruption': interruption,
                'causes': causes}

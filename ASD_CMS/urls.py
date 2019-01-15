@@ -20,7 +20,7 @@ from cms_app.views import (MainPageView, OrdersToTakeView, CreateOrderView,
                            CloseRealizationView, CloseOrderListView,
                            CloseOrderDetailsView, CurrentInteruptionsView,
                            InterruptionsListView, CloseInterruptionView,
-                           ChangeSaveView, EditOrderView,
+                           ChangeSaveView, EditCastView,
                            ListRealizationsPositions, ClosePositions)
 from django.contrib.auth import views as auth_views
 
@@ -46,7 +46,7 @@ urlpatterns = [
          name='interruption'),
     url(r'^change_save', ChangeSaveView.as_view(),
          name='change_save'),
-    url(r'^edit_realization/(?P<pk>(\d+))', EditOrderView.as_view(),
+    url(r'^edit_realization/(?P<pk>(\d+))', EditCastView.as_view(),
          name='edit_realization'),
     url(r'^list_positions/', ListRealizationsPositions.as_view(),
         name='list_positions'),
