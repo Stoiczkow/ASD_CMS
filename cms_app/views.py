@@ -131,7 +131,7 @@ class EditCastView(View):
             if (key not in exclude) and int(positions[key]) != -1:
                 employee = Employee.objects.using(db_name).get(
                     pk=int(positions[key]))
-                print('STOP  --', stop_date)
+
                 possible_cast = EmployeeRealization.objects.using(db_name).filter(employee=employee,
                                                                                   stop_date__gt=start_date,
                                                                                   start_date__lt=stop_date)
@@ -200,6 +200,7 @@ class CloseRealizationView(View):
     def post(self, request, pk):
         db_name = DBName.objects.get(pk=1).name
         realization = Realization.objects.using(db_name).get(pk=pk)
+        employees = EmployeeRealization.objects.using(db_name).filter(realization=realization)
         form = RealizationForm(request.POST)
         if form.is_valid():
             realization.realization = float(request.POST['realization'])
@@ -210,8 +211,53 @@ class CloseRealizationView(View):
             realization.order.machine.save(using=db_name)
             realization.order.save(using=db_name)
             realization.save(using=db_name)
+            for employee in employees:
+                employee.stop_date = datetime.datetime.now()
+                employee.save()
 
             return HttpResponseRedirect(reverse('index'))
+
+
+class EditWorkTime(View):
+    def get(self, request, pk):
+        db_name = DBName.objects.get(pk=1).name
+        employee_realization = EmployeeRealization.objects.using(db_name).get(pk=pk)
+        employee_realization.start_date = employee_realization.start_date.strftime('%Y-%m-%dT%H:%M')
+        if(employee_realization.stop_date):
+            employee_realization.stop_date = employee_realization.stop_date.strftime('%Y-%m-%dT%H:%M')
+        ctx = {'cast': employee_realization}
+        return render(request, 'edit_work_time.html', ctx)
+
+    def post(self, request, pk):
+        db_name = DBName.objects.get(pk=1).name
+        employee_realization = EmployeeRealization.objects.using(db_name).get(pk=pk)
+        start_date = request.POST['start']
+        start_date = datetime.datetime.strptime(start_date, '%Y-%m-%dT%H:%M')
+        stop_date = datetime.datetime.strptime(request.POST['stop'], '%Y-%m-%dT%H:%M')
+        if start_date >= stop_date:
+            request.session['error'] = ''
+            request.session['error'] = 'Czas początku pracy jest późniejszy niż czas końca pracy!'
+
+            return HttpResponseRedirect(reverse('edit_work_time', kwargs={'pk': pk}))
+
+
+
+        possible_cast = EmployeeRealization.objects.using(db_name).filter(employee=employee_realization.employee,
+                                                                          stop_date__gt=start_date,
+                                                                          start_date__lt=stop_date).exclude(pk=employee_realization.pk)
+
+        if len(possible_cast):
+                request.session['error'] = ''
+                request.session['error'] = \
+                    'Pracownik {} pracuje już na innym stanowisku w podanym przedziale czasowym'.format(employee_realization.employee)
+                print(request.session['error'])
+                return HttpResponseRedirect(reverse('edit_work_time', kwargs={'pk': pk}))
+
+        employee_realization.start_date = start_date
+        employee_realization.stop_date = stop_date
+        employee_realization.save()
+
+        return HttpResponseRedirect(reverse('edit_realization', kwargs={'pk': employee_realization.realization.pk}))
 
 
 class CloseOrderListView(View):
