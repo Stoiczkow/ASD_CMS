@@ -11,7 +11,7 @@ from .models import Interruption, Machine, Realization, DBName, Order
 @kronos.register('* * * * *')
 def process_black_box():
     today = str(datetime.datetime.now().date()).replace('-', '')
-    os.chdir("C:/Users/v-pawel.wyzykowski/Desktop")
+    os.chdir("/mnt")
     file_name = ''
     db_name = DBName.objects.get(pk=1).name
     for i in glob.glob("*.txt"):
